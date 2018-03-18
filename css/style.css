@@ -90,13 +90,13 @@ h1, h2, h3, h4, h5, h6
 {
     display: inline-block;
     background-color: #eeeeee;
-    margin-left: 25px;
+    margin-left: 20px;
     margin-top: 5px;
-    padding-left: 2%;
-    padding-right: 2%;
+    padding-left: 1%;
+    padding-right: 1%;
     padding-top: 1%;
     padding-bottom: 1%;
-    border-radius: 40%;
+    border-radius: 10%;
     font-size: 10pt;
 }
 .button a
