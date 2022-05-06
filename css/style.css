@@ -18,6 +18,11 @@ body
     background-color: #ffffff;
 }
 
+ul 
+{
+  list-style-type: none;
+}
+
 a
 {
     color: #120a8f;
