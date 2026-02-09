@@ -5,12 +5,12 @@ html
     -webkit-font-smoothing: antialiased;
 }
 
-body 
+body
 {
     margin: auto;
     padding: 1%;
     max-width: 40%;
-    min-width: 640px;
+    min-width: 320px;
     font-family: sans-serif;
     font-size: 11pt;
     line-height: 5mm;
@@ -70,7 +70,6 @@ h1, h2, h3, h4, h5, h6
 .paper img
 {
     display: inline-block;
-    align-content: center;
     width: auto;
     height: auto;
     max-width: 250px;
@@ -162,6 +161,56 @@ h1, h2, h3, h4, h5, h6
 .info .rightcol
 {
     width: 20%;
+}
+
+.search-container
+{
+    margin: 20px 0;
+    text-align: center;
+}
+.search-container .search
+{
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 11pt;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+.search-container .search:focus
+{
+    outline: none;
+    border-color: #0892D0;
+    box-shadow: 0 0 8px rgba(8, 146, 208, 0.3);
+}
+.search-container .search-results
+{
+    display: block;
+    margin-top: 10px;
+    font-size: 11pt;
+    color: #0066ff;
+    font-weight: bold;
+    min-height: 20px;
+}
+
+/* Tablet breakpoint */
+@media(max-width:1024px) and (min-width:801px)
+{
+    body
+    {
+        max-width: 70%;
+        min-width: 600px;
+        padding: 2%;
+    }
+    .info .title
+    {
+        font-size: 28pt;
+    }
+    .paper img
+    {
+        max-width: 200px;
+    }
 }
 
 @media(max-width:800px) 
