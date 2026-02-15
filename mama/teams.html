@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mama's Sport Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .top-logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-dropdown {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-dropdown:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .filter-dropdown:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+
+        .filter-label {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .custom-dropdown {
+            position: relative;
+            min-width: 350px;
+        }
+
+        .custom-dropdown.sport-dropdown {
+            min-width: 200px;
+        }
+
+        .dropdown-selected {
+            padding: 12px 20px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .dropdown-selected:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .dropdown-selected img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        .dropdown-selected span {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .dropdown-arrow {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .custom-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            margin-top: 8px;
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+        }
+
+        .custom-dropdown.open .dropdown-options {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dropdown-option:hover {
+            background: #f0f0f0;
+        }
+
+        .dropdown-option img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        .dropdown-option span {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .dropdown-option.no-logo {
+            padding-left: 62px;
+        }
+
+        .conference-logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 40px;
+        }
+
+        .conference-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+            transition: all 0.3s ease;
+        }
+
+        .conference-logo.hidden {
+            display: none;
+        }
+
+        .conference-logo.dimmed {
+            opacity: 0.3;
+            filter: grayscale(100%) drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
+
+        .map-container {
+            position: relative;
+            width: 95%;
+            max-width: 1600px;
+            height: 80vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .map-content {
+            position: relative;
+            transform-origin: top left;
+            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+            width: 100%;
+            min-width: 100%;
+        }
+
+        .map-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 500;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            color: #333;
+        }
+
+        .zoom-btn:hover {
+            background: #f5f5f5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+
+        .zoom-level {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+        }
+
+        .map-svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .team-marker {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            border: 2px solid #e0e0e0;
+            padding: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .team-marker:hover {
+            transform: scale(1.3);
+            z-index: 100;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Adjust marker size based on zoom level for better spacing */
+        .map-content.zoomed .team-marker {
+            width: 40px;
+            height: 40px;
+        }
+
+        .map-content.zoomed-more .team-marker {
+            width: 35px;
+            height: 35px;
+        }
+
+        .team-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .team-name {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .team-marker:hover .team-name {
+            opacity: 1;
+        }
+
+        .team-marker.hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 800px;
+            height: 600px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        @media (max-width: 850px) {
+            .modal-content {
+                width: 90vw;
+                height: 80vh;
+            }
+        }
+
+        .modal-header-controls {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .close-btn {
+            font-size: 30px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.3s;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+        .nav-arrow {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .nav-arrow:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .stadium-info h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .team-header-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .team-header h2 {
+            margin: 0;
+            flex: 1;
+        }
+
+        .stadium-img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stadium-details {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <label class="filter-label">Sport:</label>
+            <div class="custom-dropdown sport-dropdown" id="sport-dropdown">
+                <div class="dropdown-selected">
+                    <span id="selected-sport-text"></span>
+                    <div class="dropdown-arrow">▼</div>
+                </div>
+                <div class="dropdown-options">
+                    <div class="dropdown-option" data-value="nfl">
+                        <img src="images/NFL/nfl-logo.png" alt="NFL">
+                        <span>NFL</span>
+                    </div>
+                    <div class="dropdown-option" data-value="nba">
+                        <img src="images/NBA/nba-logo.png" alt="NBA">
+                        <span>NBA</span>
+                    </div>
+                    <div class="dropdown-option" data-value="mlb">
+                        <img src="images/MLB/mlb-logo.png" alt="MLB">
+                        <span>MLB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <label class="filter-label">Conference:</label>
+            <div class="custom-dropdown" id="conference-dropdown">
+                <div class="dropdown-selected">
+                    <span id="selected-conference-text">All</span>
+                    <div class="dropdown-arrow">▼</div>
+                </div>
+                <div class="dropdown-options" id="conference-options">
+                    <!-- Options will be dynamically generated -->
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <label class="filter-label">Division:</label>
+            <div class="custom-dropdown" id="division-dropdown">
+                <div class="dropdown-selected">
+                    <span id="selected-division-text">All</span>
+                    <div class="dropdown-arrow">▼</div>
+                </div>
+                <div class="dropdown-options" id="division-options">
+                    <!-- Options will be dynamically generated -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="map-container">
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoom-in">+</button>
+            <div class="zoom-level" id="zoom-level">100%</div>
+            <button class="zoom-btn" id="zoom-out">−</button>
+            <button class="zoom-btn" id="zoom-reset" title="Reset Zoom">⟲</button>
+        </div>
+
+        <div class="map-wrapper" id="map-wrapper">
+            <div class="map-content" id="map-content">
+                <img src="images/us-map.svg" alt="US Map" class="map-svg">
+
+                <!-- Team markers will be positioned here -->
+                <div id="teams-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for stadium info -->
+    <div id="stadium-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header-controls">
+                <button class="nav-arrow" id="prev-team-arrow" title="Previous team">‹</button>
+                <button class="nav-arrow" id="next-team-arrow" title="Next team">›</button>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="stadium-info" class="stadium-info"></div>
+        </div>
+    </div>
+
+    <script>
+        const nflTeams = [
+            // AFC East
+            { name: "Buffalo Bills", city: "Buffalo", x: 79, y: 25, logoFile: "bills.webp", stadium: "Highmark Stadium", capacity: "71,608", conference: "afc", division: "afc-east" },
+            { name: "Miami Dolphins", city: "Miami", x: 77, y: 95, logoFile: "dolphins.webp", stadium: "Hard Rock Stadium", capacity: "64,767", conference: "afc", division: "afc-east" },
+            { name: "New England Patriots", city: "Foxborough", x: 93, y: 27, logoFile: "patriots.webp", stadium: "Gillette Stadium", capacity: "65,878", conference: "afc", division: "afc-east" },
+            { name: "New York Jets", city: "New York", x: 88, y: 34, logoFile: "jets.webp", stadium: "MetLife Stadium", capacity: "82,500", conference: "afc", division: "afc-east" },
+
+            // AFC North
+            { name: "Baltimore Ravens", city: "Baltimore", x: 84, y: 39, logoFile: "ravens.webp", stadium: "M&T Bank Stadium", capacity: "70,745", conference: "afc", division: "afc-north" },
+            { name: "Cincinnati Bengals", city: "Cincinnati", x: 72, y: 39, logoFile: "bengals.webp", stadium: "Paycor Stadium", capacity: "65,515", conference: "afc", division: "afc-north" },
+            { name: "Cleveland Browns", city: "Cleveland", x: 74, y: 31, logoFile: "browns.webp", stadium: "Cleveland Browns Stadium", capacity: "67,431", conference: "afc", division: "afc-north" },
+            { name: "Pittsburgh Steelers", city: "Pittsburgh", x: 77, y: 35, logoFile: "steelers.webp", stadium: "Acrisure Stadium", capacity: "68,400", conference: "afc", division: "afc-north" },
+
+            // AFC South
+            { name: "Houston Texans", city: "Houston", x: 51, y: 78, logoFile: "texans.webp", stadium: "NRG Stadium", capacity: "72,220", conference: "afc", division: "afc-south" },
+            { name: "Indianapolis Colts", city: "Indianapolis", x: 67, y: 38, logoFile: "colts.webp", stadium: "Lucas Oil Stadium", capacity: "67,000", conference: "afc", division: "afc-south" },
+            { name: "Jacksonville Jaguars", city: "Jacksonville", x: 78, y: 72, logoFile: "jaguars.webp", stadium: "EverBank Stadium", capacity: "67,814", conference: "afc", division: "afc-south" },
+            { name: "Tennessee Titans", city: "Nashville", x: 66, y: 52, logoFile: "titans.webp", stadium: "Nissan Stadium", capacity: "69,143", conference: "afc", division: "afc-south" },
+
+            // AFC West
+            { name: "Denver Broncos", city: "Denver", x: 34, y: 38, logoFile: "broncos.webp", stadium: "Empower Field at Mile High", capacity: "76,125", conference: "afc", division: "afc-west" },
+            { name: "Kansas City Chiefs", city: "Kansas City", x: 52, y: 40, logoFile: "chiefs.webp", stadium: "GEHA Field at Arrowhead Stadium", capacity: "76,416", conference: "afc", division: "afc-west" },
+            { name: "Las Vegas Raiders", city: "Las Vegas", x: 17, y: 52, logoFile: "raiders.webp", stadium: "Allegiant Stadium", capacity: "65,000", conference: "afc", division: "afc-west" },
+            { name: "Los Angeles Chargers", city: "Los Angeles", x: 11, y: 56, logoFile: "chargers.webp", stadium: "SoFi Stadium", capacity: "70,240", conference: "afc", division: "afc-west" },
+
+            // NFC East
+            { name: "Dallas Cowboys", city: "Dallas", x: 48, y: 66, logoFile: "cowboys.webp", stadium: "AT&T Stadium", capacity: "80,000", conference: "nfc", division: "nfc-east" },
+            { name: "New York Giants", city: "New York", x: 88, y: 34, logoFile: "giants.webp", stadium: "MetLife Stadium", capacity: "82,500", conference: "nfc", division: "nfc-east" },
+            { name: "Philadelphia Eagles", city: "Philadelphia", x: 86, y: 37, logoFile: "eagles.webp", stadium: "Lincoln Financial Field", capacity: "69,176", conference: "nfc", division: "nfc-east" },
+            { name: "Washington Commanders", city: "Washington", x: 83, y: 41, logoFile: "commanders.webp", stadium: "Northwest Stadium", capacity: "67,617", conference: "nfc", division: "nfc-east" },
+
+            // NFC North
+            { name: "Chicago Bears", city: "Chicago", x: 64, y: 29, logoFile: "bear.webp", stadium: "Soldier Field", capacity: "61,500", conference: "nfc", division: "nfc-north" },
+            { name: "Detroit Lions", city: "Detroit", x: 72, y: 27, logoFile: "lions.webp", stadium: "Ford Field", capacity: "65,000", conference: "nfc", division: "nfc-north" },
+            { name: "Green Bay Packers", city: "Green Bay", x: 64, y: 18, logoFile: "packers.webp", stadium: "Lambeau Field", capacity: "81,441", conference: "nfc", division: "nfc-north" },
+            { name: "Minnesota Vikings", city: "Minneapolis", x: 54, y: 16, logoFile: "vikings.webp", stadium: "U.S. Bank Stadium", capacity: "66,860", conference: "nfc", division: "nfc-north" },
+
+            // NFC South
+            { name: "Atlanta Falcons", city: "Atlanta", x: 70, y: 62, logoFile: "falcons.webp", stadium: "Mercedes-Benz Stadium", capacity: "71,000", conference: "nfc", division: "nfc-south" },
+            { name: "Carolina Panthers", city: "Charlotte", x: 76, y: 56, logoFile: "panthers.webp", stadium: "Bank of America Stadium", capacity: "75,523", conference: "nfc", division: "nfc-south" },
+            { name: "New Orleans Saints", city: "New Orleans", x: 60, y: 78, logoFile: "saints.webp", stadium: "Caesars Superdome", capacity: "73,208", conference: "nfc", division: "nfc-south" },
+            { name: "Tampa Bay Buccaneers", city: "Tampa", x: 73, y: 86, logoFile: "tampaBay.webp", stadium: "Raymond James Stadium", capacity: "65,618", conference: "nfc", division: "nfc-south" },
+
+            // NFC West
+            { name: "Arizona Cardinals", city: "Phoenix", x: 22, y: 64, logoFile: "cardinals.webp", stadium: "State Farm Stadium", capacity: "63,400", conference: "nfc", division: "nfc-west" },
+            { name: "Los Angeles Rams", city: "Los Angeles", x: 11, y: 56, logoFile: "rams.webp", stadium: "SoFi Stadium", capacity: "70,240", conference: "nfc", division: "nfc-west" },
+            { name: "San Francisco 49ers", city: "San Francisco", x: 4, y: 40, logoFile: "49ers.webp", stadium: "Levi's Stadium", capacity: "68,500", conference: "nfc", division: "nfc-west" },
+            { name: "Seattle Seahawks", city: "Seattle", x: 4, y: 6, logoFile: "seahawks.webp", stadium: "Lumen Field", capacity: "68,740", conference: "nfc", division: "nfc-west" }
+        ];
+
+        const nbaTeams = [
+            // Eastern Conference - Atlantic
+            { name: "Boston Celtics", city: "Boston", x: 93, y: 27, logoFile: "celtics.webp", arena: "TD Garden", capacity: "19,156", conference: "eastern", division: "atlantic" },
+            { name: "Brooklyn Nets", city: "Brooklyn", x: 88, y: 34, logoFile: "nets.webp", arena: "Barclays Center", capacity: "17,732", conference: "eastern", division: "atlantic" },
+            { name: "New York Knicks", city: "New York", x: 88, y: 34, logoFile: "knicks.webp", arena: "Madison Square Garden", capacity: "19,812", conference: "eastern", division: "atlantic" },
+            { name: "Philadelphia 76ers", city: "Philadelphia", x: 86, y: 37, logoFile: "76ers.webp", arena: "Wells Fargo Center", capacity: "20,478", conference: "eastern", division: "atlantic" },
+            { name: "Toronto Raptors", city: "Toronto", x: 75, y: 20, logoFile: "raptors.webp", arena: "Scotiabank Arena", capacity: "19,800", conference: "eastern", division: "atlantic" },
+
+            // Eastern Conference - Central
+            { name: "Chicago Bulls", city: "Chicago", x: 64, y: 29, logoFile: "bulls.webp", arena: "United Center", capacity: "20,917", conference: "eastern", division: "central" },
+            { name: "Cleveland Cavaliers", city: "Cleveland", x: 74, y: 31, logoFile: "cavaliers.webp", arena: "Rocket Mortgage FieldHouse", capacity: "19,432", conference: "eastern", division: "central" },
+            { name: "Detroit Pistons", city: "Detroit", x: 72, y: 27, logoFile: "pistons.webp", arena: "Little Caesars Arena", capacity: "20,332", conference: "eastern", division: "central" },
+            { name: "Indiana Pacers", city: "Indianapolis", x: 67, y: 38, logoFile: "pacers.webp", arena: "Gainbridge Fieldhouse", capacity: "17,923", conference: "eastern", division: "central" },
+            { name: "Milwaukee Bucks", city: "Milwaukee", x: 64, y: 24, logoFile: "bucks.webp", arena: "Fiserv Forum", capacity: "17,341", conference: "eastern", division: "central" },
+
+            // Eastern Conference - Southeast
+            { name: "Atlanta Hawks", city: "Atlanta", x: 70, y: 62, logoFile: "hawks.webp", arena: "State Farm Arena", capacity: "16,888", conference: "eastern", division: "southeast" },
+            { name: "Charlotte Hornets", city: "Charlotte", x: 76, y: 56, logoFile: "hornets.webp", arena: "Spectrum Center", capacity: "19,077", conference: "eastern", division: "southeast" },
+            { name: "Miami Heat", city: "Miami", x: 77, y: 95, logoFile: "heat.webp", arena: "Kaseya Center", capacity: "19,600", conference: "eastern", division: "southeast" },
+            { name: "Orlando Magic", city: "Orlando", x: 78, y: 82, logoFile: "magic.svg", arena: "Kia Center", capacity: "18,846", conference: "eastern", division: "southeast" },
+            { name: "Washington Wizards", city: "Washington", x: 83, y: 41, logoFile: "wizards.webp", arena: "Capital One Arena", capacity: "20,356", conference: "eastern", division: "southeast" },
+
+            // Western Conference - Northwest
+            { name: "Denver Nuggets", city: "Denver", x: 34, y: 38, logoFile: "nuggets.webp", arena: "Ball Arena", capacity: "19,520", conference: "western", division: "northwest" },
+            { name: "Minnesota Timberwolves", city: "Minneapolis", x: 54, y: 16, logoFile: "timberwolves.webp", arena: "Target Center", capacity: "18,978", conference: "western", division: "northwest" },
+            { name: "Oklahoma City Thunder", city: "Oklahoma City", x: 47, y: 55, logoFile: "thunder.webp", arena: "Paycom Center", capacity: "18,203", conference: "western", division: "northwest" },
+            { name: "Portland Trail Blazers", city: "Portland", x: 3, y: 14, logoFile: "trailblazers.webp", arena: "Moda Center", capacity: "19,393", conference: "western", division: "northwest" },
+            { name: "Utah Jazz", city: "Salt Lake City", x: 22, y: 33, logoFile: "jazz.webp", arena: "Delta Center", capacity: "18,306", conference: "western", division: "northwest" },
+
+            // Western Conference - Pacific
+            { name: "Golden State Warriors", city: "San Francisco", x: 4, y: 40, logoFile: "warriors.webp", arena: "Chase Center", capacity: "18,064", conference: "western", division: "pacific" },
+            { name: "LA Clippers", city: "Los Angeles", x: 11, y: 56, logoFile: "clippers.webp", arena: "Intuit Dome", capacity: "18,000", conference: "western", division: "pacific" },
+            { name: "Los Angeles Lakers", city: "Los Angeles", x: 11, y: 56, logoFile: "lakers.webp", arena: "Crypto.com Arena", capacity: "18,997", conference: "western", division: "pacific" },
+            { name: "Phoenix Suns", city: "Phoenix", x: 22, y: 64, logoFile: "suns.webp", arena: "Footprint Center", capacity: "17,071", conference: "western", division: "pacific" },
+            { name: "Sacramento Kings", city: "Sacramento", x: 6, y: 42, logoFile: "kings.webp", arena: "Golden 1 Center", capacity: "17,583", conference: "western", division: "pacific" },
+
+            // Western Conference - Southwest
+            { name: "Dallas Mavericks", city: "Dallas", x: 48, y: 66, logoFile: "mavericks.webp", arena: "American Airlines Center", capacity: "19,200", conference: "western", division: "southwest" },
+            { name: "Houston Rockets", city: "Houston", x: 51, y: 78, logoFile: "rockets.webp", arena: "Toyota Center", capacity: "18,055", conference: "western", division: "southwest" },
+            { name: "Memphis Grizzlies", city: "Memphis", x: 60, y: 57, logoFile: "grizzlies.webp", arena: "FedExForum", capacity: "17,794", conference: "western", division: "southwest" },
+            { name: "New Orleans Pelicans", city: "New Orleans", x: 60, y: 78, logoFile: "pelicans.webp", arena: "Smoothie King Center", capacity: "16,867", conference: "western", division: "southwest" },
+            { name: "San Antonio Spurs", city: "San Antonio", x: 45, y: 80, logoFile: "spurs.webp", arena: "Frost Bank Center", capacity: "18,418", conference: "western", division: "southwest" }
+        ];
+
+        const mlbTeams = [
+            // American League East
+            { name: "Baltimore Orioles", city: "Baltimore", x: 84, y: 39, logoFile: "orioles.webp", stadium: "Oriole Park at Camden Yards", capacity: "45,971", conference: "al", division: "al-east" },
+            { name: "Boston Red Sox", city: "Boston", x: 93, y: 27, logoFile: "red-sox.webp", stadium: "Fenway Park", capacity: "37,755", conference: "al", division: "al-east" },
+            { name: "New York Yankees", city: "New York", x: 88, y: 34, logoFile: "yankees.webp", stadium: "Yankee Stadium", capacity: "46,537", conference: "al", division: "al-east" },
+            { name: "Tampa Bay Rays", city: "Tampa", x: 73, y: 86, logoFile: "rays.webp", stadium: "Tropicana Field", capacity: "25,000", conference: "al", division: "al-east" },
+            { name: "Toronto Blue Jays", city: "Toronto", x: 75, y: 20, logoFile: "blue-jays.webp", stadium: "Rogers Centre", capacity: "39,150", conference: "al", division: "al-east" },
+
+            // American League Central
+            { name: "Chicago White Sox", city: "Chicago", x: 64, y: 29, logoFile: "white-sox.webp", stadium: "Guaranteed Rate Field", capacity: "40,615", conference: "al", division: "al-central" },
+            { name: "Cleveland Guardians", city: "Cleveland", x: 74, y: 31, logoFile: "guardians.webp", stadium: "Progressive Field", capacity: "34,830", conference: "al", division: "al-central" },
+            { name: "Detroit Tigers", city: "Detroit", x: 72, y: 27, logoFile: "tigers.webp", stadium: "Comerica Park", capacity: "41,083", conference: "al", division: "al-central" },
+            { name: "Kansas City Royals", city: "Kansas City", x: 52, y: 40, logoFile: "royals.webp", stadium: "Kauffman Stadium", capacity: "37,903", conference: "al", division: "al-central" },
+            { name: "Minnesota Twins", city: "Minneapolis", x: 54, y: 16, logoFile: "twins.webp", stadium: "Target Field", capacity: "38,544", conference: "al", division: "al-central" },
+
+            // American League West
+            { name: "Houston Astros", city: "Houston", x: 51, y: 78, logoFile: "astros.webp", stadium: "Minute Maid Park", capacity: "41,168", conference: "al", division: "al-west" },
+            { name: "Los Angeles Angels", city: "Los Angeles", x: 13, y: 58, logoFile: "angels.webp", stadium: "Angel Stadium", capacity: "45,517", conference: "al", division: "al-west" },
+            { name: "Oakland Athletics", city: "Oakland", x: 6, y: 43, logoFile: "athletics.webp", stadium: "Oakland Coliseum", capacity: "46,847", conference: "al", division: "al-west" },
+            { name: "Seattle Mariners", city: "Seattle", x: 4, y: 6, logoFile: "mariners.webp", stadium: "T-Mobile Park", capacity: "47,929", conference: "al", division: "al-west" },
+            { name: "Texas Rangers", city: "Dallas", x: 48, y: 66, logoFile: "rangers.webp", stadium: "Globe Life Field", capacity: "40,300", conference: "al", division: "al-west" },
+
+            // National League East
+            { name: "Atlanta Braves", city: "Atlanta", x: 70, y: 62, logoFile: "braves.webp", stadium: "Truist Park", capacity: "41,149", conference: "nl", division: "nl-east" },
+            { name: "Miami Marlins", city: "Miami", x: 77, y: 95, logoFile: "marlins.webp", stadium: "loanDepot park", capacity: "36,742", conference: "nl", division: "nl-east" },
+            { name: "New York Mets", city: "New York", x: 88, y: 34, logoFile: "mets.webp", stadium: "Citi Field", capacity: "41,922", conference: "nl", division: "nl-east" },
+            { name: "Philadelphia Phillies", city: "Philadelphia", x: 86, y: 37, logoFile: "phillies.webp", stadium: "Citizens Bank Park", capacity: "42,901", conference: "nl", division: "nl-east" },
+            { name: "Washington Nationals", city: "Washington", x: 83, y: 41, logoFile: "nationals.webp", stadium: "Nationals Park", capacity: "41,339", conference: "nl", division: "nl-east" },
+
+            // National League Central
+            { name: "Chicago Cubs", city: "Chicago", x: 64, y: 29, logoFile: "cubs.webp", stadium: "Wrigley Field", capacity: "41,649", conference: "nl", division: "nl-central" },
+            { name: "Cincinnati Reds", city: "Cincinnati", x: 72, y: 39, logoFile: "reds.webp", stadium: "Great American Ball Park", capacity: "42,319", conference: "nl", division: "nl-central" },
+            { name: "Milwaukee Brewers", city: "Milwaukee", x: 64, y: 24, logoFile: "brewers.webp", stadium: "American Family Field", capacity: "41,900", conference: "nl", division: "nl-central" },
+            { name: "Pittsburgh Pirates", city: "Pittsburgh", x: 77, y: 35, logoFile: "pirates.webp", stadium: "PNC Park", capacity: "38,747", conference: "nl", division: "nl-central" },
+            { name: "St. Louis Cardinals", city: "St. Louis", x: 59, y: 42, logoFile: "cardinals.png", stadium: "Busch Stadium", capacity: "45,494", conference: "nl", division: "nl-central" },
+
+            // National League West
+            { name: "Arizona Diamondbacks", city: "Phoenix", x: 22, y: 64, logoFile: "diamondbacks.webp", stadium: "Chase Field", capacity: "48,686", conference: "nl", division: "nl-west" },
+            { name: "Colorado Rockies", city: "Denver", x: 34, y: 38, logoFile: "rockies.webp", stadium: "Coors Field", capacity: "46,897", conference: "nl", division: "nl-west" },
+            { name: "Los Angeles Dodgers", city: "Los Angeles", x: 11, y: 56, logoFile: "dodgers.webp", stadium: "Dodger Stadium", capacity: "56,000", conference: "nl", division: "nl-west" },
+            { name: "San Diego Padres", city: "San Diego", x: 13, y: 65, logoFile: "padres.webp", stadium: "Petco Park", capacity: "40,209", conference: "nl", division: "nl-west" },
+            { name: "San Francisco Giants", city: "San Francisco", x: 4, y: 40, logoFile: "giants.png", stadium: "Oracle Park", capacity: "41,915", conference: "nl", division: "nl-west" }
+        ];
+
+        let currentSport = 'nfl';
+        let teams = nflTeams;
+        let zoomLevel = 1;
+
+        const container = document.getElementById('teams-container');
+        let teamMarkers = [];
+
+        function spreadOverlappingMarkers() {
+            // Group markers by similar positions
+            const threshold = 1.5; // Distance threshold to consider overlapping
+            const groups = [];
+
+            teamMarkers.forEach(marker => {
+                if (marker.classList.contains('hidden')) return;
+
+                const x = parseFloat(marker.dataset.baseX);
+                const y = parseFloat(marker.dataset.baseY);
+
+                // Find if marker belongs to existing group
+                let foundGroup = false;
+                for (let group of groups) {
+                    const groupX = group[0].x;
+                    const groupY = group[0].y;
+                    if (Math.abs(x - groupX) < threshold && Math.abs(y - groupY) < threshold) {
+                        group.push({marker, x, y});
+                        foundGroup = true;
+                        break;
+                    }
+                }
+
+                if (!foundGroup) {
+                    groups.push([{marker, x, y}]);
+                }
+            });
+
+            // Spread out groups with multiple markers
+            const spreadDistance = 2.5 / zoomLevel; // More spread when zoomed in
+            groups.forEach(group => {
+                if (group.length > 1) {
+                    // Calculate center of group
+                    const centerX = group.reduce((sum, m) => sum + m.x, 0) / group.length;
+                    const centerY = group.reduce((sum, m) => sum + m.y, 0) / group.length;
+
+                    // Arrange in a circle or grid pattern
+                    if (group.length === 2) {
+                        // Two markers: spread horizontally
+                        group[0].marker.style.left = `${centerX - spreadDistance}%`;
+                        group[0].marker.style.top = `${centerY}%`;
+                        group[1].marker.style.left = `${centerX + spreadDistance}%`;
+                        group[1].marker.style.top = `${centerY}%`;
+                    } else if (group.length === 3) {
+                        // Three markers: triangle pattern
+                        group[0].marker.style.left = `${centerX}%`;
+                        group[0].marker.style.top = `${centerY - spreadDistance}%`;
+                        group[1].marker.style.left = `${centerX - spreadDistance}%`;
+                        group[1].marker.style.top = `${centerY + spreadDistance}%`;
+                        group[2].marker.style.left = `${centerX + spreadDistance}%`;
+                        group[2].marker.style.top = `${centerY + spreadDistance}%`;
+                    } else {
+                        // Four or more: circular pattern
+                        const angleStep = (2 * Math.PI) / group.length;
+                        group.forEach((item, idx) => {
+                            const angle = idx * angleStep;
+                            const offsetX = Math.cos(angle) * spreadDistance;
+                            const offsetY = Math.sin(angle) * spreadDistance;
+                            item.marker.style.left = `${centerX + offsetX}%`;
+                            item.marker.style.top = `${centerY + offsetY}%`;
+                        });
+                    }
+                } else {
+                    // Single marker: use base position
+                    group[0].marker.style.left = `${group[0].x}%`;
+                    group[0].marker.style.top = `${group[0].y}%`;
+                }
+            });
+        }
+
+        function loadTeams() {
+            // Clear existing markers
+            container.innerHTML = '';
+            teamMarkers = [];
+
+            teams.forEach(team => {
+                const marker = document.createElement('div');
+                marker.className = 'team-marker';
+                marker.style.left = `${team.x}%`;
+                marker.style.top = `${team.y}%`;
+                marker.dataset.conference = team.conference;
+                marker.dataset.division = team.division;
+                marker.dataset.baseX = team.x;
+                marker.dataset.baseY = team.y;
+
+                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : 'MLB';
+                marker.innerHTML = `
+                    <img src="images/${sportFolder}/${team.logoFile}" alt="${team.name}" class="team-logo" onerror="console.error('Failed to load logo for ${team.name}: ${sportFolder}/${team.logoFile}')">
+                    <div class="team-name">${team.name}</div>
+                `;
+
+                if (team.name === 'Seattle Seahawks') {
+                    console.log('Loading Seahawks:', team, 'Position:', team.x, team.y);
+                }
+
+                marker.addEventListener('click', () => showVenue(team));
+
+                container.appendChild(marker);
+                teamMarkers.push(marker);
+            });
+
+            // Apply initial positioning
+            spreadOverlappingMarkers();
+        }
+
+        // Initial load
+        loadTeams();
+
+        // Filter state
+        let currentConference = 'all';
+        let currentDivision = 'all';
+
+        // Sport dropdown
+        const sportDropdown = document.getElementById('sport-dropdown');
+        const sportSelected = sportDropdown.querySelector('.dropdown-selected');
+        const selectedSportText = document.getElementById('selected-sport-text');
+        const sportOptions = sportDropdown.querySelectorAll('.dropdown-option');
+
+        // Initialize sport dropdown with NFL
+        function initSportDropdown() {
+            const nflOption = Array.from(sportOptions).find(opt => opt.dataset.value === 'nfl');
+            const optionImg = nflOption.querySelector('img');
+            const optionText = nflOption.querySelector('span').textContent;
+            selectedSportText.innerHTML = `<img src="${optionImg.src}" alt="" style="width: 30px; height: 30px; object-fit: contain; margin-right: 12px; vertical-align: middle;">${optionText}`;
+        }
+
+        initSportDropdown();
+
+        sportSelected.addEventListener('click', () => {
+            sportDropdown.classList.toggle('open');
+            // Close other dropdowns safely
+            const confDropdown = document.getElementById('conference-dropdown');
+            const divDropdown = document.getElementById('division-dropdown');
+            if (confDropdown) confDropdown.classList.remove('open');
+            if (divDropdown) divDropdown.classList.remove('open');
+        });
+
+        sportOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                currentSport = option.dataset.value;
+                const optionImg = option.querySelector('img');
+                const optionText = option.querySelector('span').textContent;
+
+                // Update selected display with logo
+                selectedSportText.innerHTML = `<img src="${optionImg.src}" alt="" style="width: 30px; height: 30px; object-fit: contain; margin-right: 12px; vertical-align: middle;">${optionText}`;
+
+                sportDropdown.classList.remove('open');
+
+                // Switch teams dataset
+                if (currentSport === 'nfl') {
+                    teams = nflTeams;
+                } else if (currentSport === 'nba') {
+                    teams = nbaTeams;
+                } else if (currentSport === 'mlb') {
+                    teams = mlbTeams;
+                }
+
+                // Update conference and division dropdown options
+                updateConferenceOptions();
+                updateDivisionOptions();
+
+                // Reset filters
+                currentConference = 'all';
+                currentDivision = 'all';
+                selectedConferenceText.textContent = 'All';
+                selectedDivisionText.textContent = 'All';
+
+                // Reload teams
+                loadTeams();
+            });
+        });
+
+        // Conference dropdown
+        const conferenceDropdown = document.getElementById('conference-dropdown');
+        const conferenceSelected = conferenceDropdown.querySelector('.dropdown-selected');
+        const selectedConferenceText = document.getElementById('selected-conference-text');
+        const conferenceOptionsContainer = document.getElementById('conference-options');
+
+        function updateConferenceOptions() {
+            conferenceOptionsContainer.innerHTML = `
+                <div class="dropdown-option no-logo" data-value="all">
+                    <span>All</span>
+                </div>
+            `;
+
+            if (currentSport === 'nfl') {
+                conferenceOptionsContainer.innerHTML += `
+                    <div class="dropdown-option" data-value="afc">
+                        <img src="images/NFL/afc-logo.png" alt="AFC">
+                        <span>AFC</span>
+                    </div>
+                    <div class="dropdown-option" data-value="nfc">
+                        <img src="images/NFL/nfc-logo.png" alt="NFC">
+                        <span>NFC</span>
+                    </div>
+                `;
+            } else if (currentSport === 'nba') {
+                conferenceOptionsContainer.innerHTML += `
+                    <div class="dropdown-option" data-value="eastern">
+                        <img src="images/NBA/nba-eastern-logo.png" alt="Eastern">
+                        <span>Eastern</span>
+                    </div>
+                    <div class="dropdown-option" data-value="western">
+                        <img src="images/NBA/nba-western-logo.png" alt="Western">
+                        <span>Western</span>
+                    </div>
+                `;
+            } else if (currentSport === 'mlb') {
+                conferenceOptionsContainer.innerHTML += `
+                    <div class="dropdown-option" data-value="al">
+                        <img src="images/MLB/mlb-al-logo.svg" alt="AL">
+                        <span>American League</span>
+                    </div>
+                    <div class="dropdown-option" data-value="nl">
+                        <img src="images/MLB/mlb-nl-logo.svg" alt="NL">
+                        <span>National League</span>
+                    </div>
+                `;
+            }
+
+            // Re-attach event listeners
+            attachConferenceListeners();
+        }
+
+        function attachConferenceListeners() {
+            const conferenceOptions = conferenceOptionsContainer.querySelectorAll('.dropdown-option');
+            conferenceOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    currentConference = option.dataset.value;
+                    const optionText = option.querySelector('span').textContent;
+                    const optionImg = option.querySelector('img');
+
+                    if (optionImg) {
+                        selectedConferenceText.innerHTML = `<img src="${optionImg.src}" alt="" style="width: 30px; height: 30px; object-fit: contain; margin-right: 12px; vertical-align: middle;">${optionText}`;
+                    } else {
+                        selectedConferenceText.textContent = optionText;
+                    }
+
+                    conferenceDropdown.classList.remove('open');
+                    filterTeams();
+                });
+            });
+        }
+
+        // Initialize conference options
+        updateConferenceOptions();
+
+        // Division dropdown
+        const divisionDropdown = document.getElementById('division-dropdown');
+        const divisionSelected = divisionDropdown.querySelector('.dropdown-selected');
+        const selectedDivisionText = document.getElementById('selected-division-text');
+        const divisionOptionsContainer = document.getElementById('division-options');
+
+        function updateDivisionOptions() {
+            if (currentSport === 'nfl') {
+                divisionOptionsContainer.innerHTML = `
+                    <div class="dropdown-option no-logo" data-value="all"><span>All</span></div>
+                    <div class="dropdown-option no-logo" data-value="east"><span>East</span></div>
+                    <div class="dropdown-option no-logo" data-value="north"><span>North</span></div>
+                    <div class="dropdown-option no-logo" data-value="south"><span>South</span></div>
+                    <div class="dropdown-option no-logo" data-value="west"><span>West</span></div>
+                `;
+            } else if (currentSport === 'nba') {
+                divisionOptionsContainer.innerHTML = `
+                    <div class="dropdown-option no-logo" data-value="all"><span>All</span></div>
+                    <div class="dropdown-option no-logo" data-value="atlantic"><span>Atlantic</span></div>
+                    <div class="dropdown-option no-logo" data-value="central"><span>Central</span></div>
+                    <div class="dropdown-option no-logo" data-value="southeast"><span>Southeast</span></div>
+                    <div class="dropdown-option no-logo" data-value="northwest"><span>Northwest</span></div>
+                    <div class="dropdown-option no-logo" data-value="pacific"><span>Pacific</span></div>
+                    <div class="dropdown-option no-logo" data-value="southwest"><span>Southwest</span></div>
+                `;
+            } else if (currentSport === 'mlb') {
+                divisionOptionsContainer.innerHTML = `
+                    <div class="dropdown-option no-logo" data-value="all"><span>All</span></div>
+                    <div class="dropdown-option no-logo" data-value="east"><span>East</span></div>
+                    <div class="dropdown-option no-logo" data-value="central"><span>Central</span></div>
+                    <div class="dropdown-option no-logo" data-value="west"><span>West</span></div>
+                `;
+            }
+
+            // Re-attach event listeners
+            attachDivisionListeners();
+        }
+
+        function attachDivisionListeners() {
+            const divisionOptions = divisionOptionsContainer.querySelectorAll('.dropdown-option');
+            divisionOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    currentDivision = option.dataset.value;
+                    selectedDivisionText.textContent = option.querySelector('span').textContent;
+                    divisionDropdown.classList.remove('open');
+                    filterTeams();
+                });
+            });
+        }
+
+        // Initialize division options
+        updateDivisionOptions();
+
+        conferenceSelected.addEventListener('click', () => {
+            conferenceDropdown.classList.toggle('open');
+            divisionDropdown.classList.remove('open');
+            sportDropdown.classList.remove('open');
+        });
+
+        divisionSelected.addEventListener('click', () => {
+            divisionDropdown.classList.toggle('open');
+            conferenceDropdown.classList.remove('open');
+            sportDropdown.classList.remove('open');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!conferenceDropdown.contains(e.target)) {
+                conferenceDropdown.classList.remove('open');
+            }
+            if (!divisionDropdown.contains(e.target)) {
+                divisionDropdown.classList.remove('open');
+            }
+            if (!sportDropdown.contains(e.target)) {
+                sportDropdown.classList.remove('open');
+            }
+        });
+
+        function filterTeams() {
+            teamMarkers.forEach(marker => {
+                let show = true;
+
+                // Check conference filter
+                if (currentConference !== 'all' && marker.dataset.conference !== currentConference) {
+                    show = false;
+                }
+
+                // Check division filter
+                if (currentDivision !== 'all') {
+                    if (currentSport === 'nfl' || currentSport === 'mlb') {
+                        // NFL and MLB use pattern like "afc-east", "nfc-west", "al-east", "nl-central"
+                        if (currentConference === 'all') {
+                            // If no specific conference, check all leagues' divisions
+                            if (!marker.dataset.division.endsWith(`-${currentDivision}`)) {
+                                show = false;
+                            }
+                        } else {
+                            // If conference is selected, check for exact division match
+                            const targetDivision = `${currentConference}-${currentDivision}`;
+                            if (marker.dataset.division !== targetDivision) {
+                                show = false;
+                            }
+                        }
+                    } else {
+                        // NBA uses full division names like "atlantic", "pacific"
+                        if (marker.dataset.division !== currentDivision) {
+                            show = false;
+                        }
+                    }
+                }
+
+                if (show) {
+                    marker.classList.remove('hidden');
+                } else {
+                    marker.classList.add('hidden');
+                }
+            });
+
+            // Reposition after filtering to handle new overlaps
+            spreadOverlappingMarkers();
+        }
+
+        let currentTeamIndex = -1;
+        let visibleTeams = [];
+
+        function showVenue(team) {
+            const modal = document.getElementById('stadium-modal');
+            const stadiumInfo = document.getElementById('stadium-info');
+
+            // Get list of visible teams for navigation
+            visibleTeams = [];
+            teamMarkers.forEach((marker, idx) => {
+                if (!marker.classList.contains('hidden')) {
+                    visibleTeams.push(teams[idx]);
+                }
+            });
+
+            // Find current team index in visible teams
+            currentTeamIndex = visibleTeams.findIndex(t => t.name === team.name);
+
+            // Use venue image from images folder (stadium or arena)
+            let venueFileName, venueName, venueLabel, sportFolder;
+            if (currentSport === 'nfl' || currentSport === 'mlb') {
+                venueFileName = team.logoFile.replace('.webp', '-stadium.jpg').replace('.png', '-stadium.jpg').replace('.svg', '-stadium.jpg');
+                venueName = team.stadium;
+                venueLabel = 'Stadium';
+                sportFolder = currentSport === 'nfl' ? 'NFL' : 'MLB';
+            } else {
+                venueFileName = team.logoFile.replace('.webp', '-arena.jpg').replace('.png', '-arena.jpg').replace('.svg', '-arena.jpg');
+                venueName = team.arena;
+                venueLabel = 'Arena';
+                sportFolder = 'NBA';
+            }
+            const venueImageUrl = `images/${sportFolder}/${venueFileName}`;
+            const teamLogoUrl = `images/${sportFolder}/${team.logoFile}`;
+
+            stadiumInfo.innerHTML = `
+                <div class="team-header">
+                    <img src="${teamLogoUrl}" alt="${team.name}" class="team-header-logo">
+                    <h2>${team.name}</h2>
+                </div>
+                <img class="stadium-img" src="${venueImageUrl}" alt="${venueName}">
+                <div class="stadium-details">
+                    <p><strong>${venueLabel}:</strong> ${venueName}</p>
+                    <p><strong>Location:</strong> ${team.city}</p>
+                    <p><strong>Capacity:</strong> ${team.capacity}</p>
+                </div>
+            `;
+
+            // Update navigation arrow buttons - always enabled for cyclic navigation
+            const prevArrow = document.getElementById('prev-team-arrow');
+            const nextArrow = document.getElementById('next-team-arrow');
+
+            prevArrow.disabled = false;
+            nextArrow.disabled = false;
+
+            // Remove old event listeners by cloning and replacing
+            const newPrevArrow = prevArrow.cloneNode(true);
+            const newNextArrow = nextArrow.cloneNode(true);
+            prevArrow.parentNode.replaceChild(newPrevArrow, prevArrow);
+            nextArrow.parentNode.replaceChild(newNextArrow, nextArrow);
+
+            // Add cyclic navigation event listeners
+            newPrevArrow.addEventListener('click', () => {
+                // Go to previous, or wrap to last team
+                const prevIndex = currentTeamIndex - 1;
+                const targetIndex = prevIndex < 0 ? visibleTeams.length - 1 : prevIndex;
+                showVenue(visibleTeams[targetIndex]);
+            });
+
+            newNextArrow.addEventListener('click', () => {
+                // Go to next, or wrap to first team
+                const nextIndex = currentTeamIndex + 1;
+                const targetIndex = nextIndex >= visibleTeams.length ? 0 : nextIndex;
+                showVenue(visibleTeams[targetIndex]);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('stadium-modal');
+            modal.classList.remove('active');
+        }
+
+        document.getElementById('stadium-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'stadium-modal') {
+                closeModal();
+            }
+        });
+
+        // Zoom functionality
+        const minZoom = 0.5;
+        const maxZoom = 3;
+        const zoomStep = 0.2;
+
+        const mapContent = document.getElementById('map-content');
+        const mapWrapper = document.getElementById('map-wrapper');
+        const zoomLevelDisplay = document.getElementById('zoom-level');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const zoomResetBtn = document.getElementById('zoom-reset');
+
+        function updateZoom() {
+            // Use transform scale and also adjust actual width/height for proper scrolling
+            mapContent.style.transform = `scale(${zoomLevel})`;
+            mapContent.style.width = `${100 * zoomLevel}%`;
+            mapContent.style.height = `${100 * zoomLevel}%`;
+            zoomLevelDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
+
+            // Add classes for different zoom levels to adjust marker size
+            mapContent.classList.remove('zoomed', 'zoomed-more');
+            if (zoomLevel >= 2) {
+                mapContent.classList.add('zoomed-more');
+            } else if (zoomLevel >= 1.4) {
+                mapContent.classList.add('zoomed');
+            }
+
+            // Reposition markers to prevent overlap
+            spreadOverlappingMarkers();
+        }
+
+        zoomInBtn.addEventListener('click', () => {
+            if (zoomLevel < maxZoom) {
+                zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
+                updateZoom();
+            }
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            if (zoomLevel > minZoom) {
+                zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
+                updateZoom();
+            }
+        });
+
+        zoomResetBtn.addEventListener('click', () => {
+            zoomLevel = 1;
+            updateZoom();
+            mapWrapper.scrollTop = 0;
+            mapWrapper.scrollLeft = 0;
+        });
+
+        // Mouse wheel zoom
+        mapWrapper.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    // Zoom in
+                    if (zoomLevel < maxZoom) {
+                        zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
+                        updateZoom();
+                    }
+                } else {
+                    // Zoom out
+                    if (zoomLevel > minZoom) {
+                        zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
+                        updateZoom();
+                    }
+                }
+            }
+        });
+
+        // Pan functionality (drag to move)
+        let isPanning = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        mapWrapper.addEventListener('mousedown', (e) => {
+            // Only pan if not clicking on a team marker
+            if (!e.target.closest('.team-marker') && !e.target.closest('.zoom-controls')) {
+                isPanning = true;
+                startX = e.pageX - mapWrapper.offsetLeft;
+                startY = e.pageY - mapWrapper.offsetTop;
+                scrollLeft = mapWrapper.scrollLeft;
+                scrollTop = mapWrapper.scrollTop;
+            }
+        });
+
+        mapWrapper.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            e.preventDefault();
+            const x = e.pageX - mapWrapper.offsetLeft;
+            const y = e.pageY - mapWrapper.offsetTop;
+            // Adjust pan sensitivity based on zoom - less sensitive when zoomed in
+            const sensitivity = 2 / zoomLevel;
+            const walkX = (x - startX) * sensitivity;
+            const walkY = (y - startY) * sensitivity;
+            mapWrapper.scrollLeft = scrollLeft - walkX;
+            mapWrapper.scrollTop = scrollTop - walkY;
+        });
+
+        mapWrapper.addEventListener('mouseup', () => {
+            isPanning = false;
+        });
+
+        mapWrapper.addEventListener('mouseleave', () => {
+            isPanning = false;
+        });
+
+        // Touch gesture support for iPad/mobile
+        let initialDistance = 0;
+        let initialZoom = 1;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        mapWrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                // Two finger pinch to zoom
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = Math.hypot(
+                    touch2.pageX - touch1.pageX,
+                    touch2.pageY - touch1.pageY
+                );
+                initialZoom = zoomLevel;
+            } else if (e.touches.length === 1) {
+                // Single finger pan
+                if (!e.target.closest('.team-marker') && !e.target.closest('.zoom-controls')) {
+                    const touch = e.touches[0];
+                    touchStartX = touch.pageX;
+                    touchStartY = touch.pageY;
+                    scrollLeft = mapWrapper.scrollLeft;
+                    scrollTop = mapWrapper.scrollTop;
+                }
+            }
+        }, { passive: false });
+
+        mapWrapper.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                // Pinch zoom
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.hypot(
+                    touch2.pageX - touch1.pageX,
+                    touch2.pageY - touch1.pageY
+                );
+
+                const scale = currentDistance / initialDistance;
+                zoomLevel = Math.max(minZoom, Math.min(maxZoom, initialZoom * scale));
+                updateZoom();
+            } else if (e.touches.length === 1) {
+                // Pan
+                if (!e.target.closest('.team-marker') && !e.target.closest('.zoom-controls')) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    // Adjust touch pan sensitivity based on zoom
+                    const sensitivity = 1 / zoomLevel;
+                    const walkX = (touchStartX - touch.pageX) * sensitivity;
+                    const walkY = (touchStartY - touch.pageY) * sensitivity;
+                    mapWrapper.scrollLeft = scrollLeft + walkX;
+                    mapWrapper.scrollTop = scrollTop + walkY;
+                }
+            }
+        }, { passive: false });
+
+        mapWrapper.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                initialDistance = 0;
+            }
+        });
+    </script>
+</body>
+</html>
