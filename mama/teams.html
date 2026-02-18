@@ -215,6 +215,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         .map-wrapper:active {
@@ -223,8 +227,8 @@
 
         .map-content {
             position: relative;
-            transform-origin: top left;
-            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
             width: 100%;
             min-width: 100%;
         }
@@ -233,16 +237,43 @@
             width: 100%;
             height: auto;
             display: block;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+
+        #teams-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #teams-container .team-marker {
+            pointer-events: auto;
         }
 
         .zoom-controls {
             position: absolute;
-            top: 30px;
-            right: 30px;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             gap: 10px;
             z-index: 500;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .zoom-btn {
@@ -542,7 +573,7 @@
 
         <div class="map-wrapper" id="map-wrapper">
             <div class="map-content" id="map-content">
-                <img src="images/us-map.svg" alt="US Map" class="map-svg">
+                <img src="images/us-map.webp" alt="US Map" class="map-svg">
 
                 <!-- Team markers will be positioned here -->
                 <div id="teams-container"></div>
@@ -1179,10 +1210,8 @@
         const zoomResetBtn = document.getElementById('zoom-reset');
 
         function updateZoom() {
-            // Use transform scale and also adjust actual width/height for proper scrolling
+            // Use transform scale only - markers will scale with the map
             mapContent.style.transform = `scale(${zoomLevel})`;
-            mapContent.style.width = `${100 * zoomLevel}%`;
-            mapContent.style.height = `${100 * zoomLevel}%`;
             zoomLevelDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
 
             // Add classes for different zoom levels to adjust marker size
