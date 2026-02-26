@@ -334,6 +334,16 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
+        .team-marker.conf-blue {
+            background: #ddeeff;
+            border-color: #b0cce8;
+        }
+
+        .team-marker.conf-red {
+            background: #ffdddd;
+            border-color: #e8b0b0;
+        }
+
         .team-marker:hover {
             transform: scale(1.3);
             z-index: 100;
@@ -402,10 +412,10 @@
 
         .modal-content {
             background: white;
-            padding: 30px;
+            padding: 24px 30px 30px;
             border-radius: 15px;
             width: 800px;
-            height: 600px;
+            height: 640px;
             overflow-y: auto;
             position: relative;
         }
@@ -418,12 +428,11 @@
         }
 
         .modal-header-controls {
-            position: absolute;
-            top: 15px;
-            right: 20px;
             display: flex;
-            gap: 10px;
+            justify-content: center;
             align-items: center;
+            gap: 24px;
+            margin-bottom: 20px;
         }
 
         .close-btn {
@@ -446,15 +455,21 @@
             color: #000;
         }
 
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
         .nav-arrow {
-            width: 35px;
-            height: 35px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 26px;
             font-weight: bold;
             transition: all 0.3s;
             display: flex;
@@ -498,7 +513,8 @@
 
         .stadium-img {
             width: 100%;
-            height: auto;
+            height: 320px;
+            object-fit: cover;
             border-radius: 10px;
             margin-bottom: 15px;
         }
@@ -531,6 +547,10 @@
                     <div class="dropdown-option" data-value="mlb">
                         <img src="images/MLB/mlb-logo.png" alt="MLB">
                         <span>MLB</span>
+                    </div>
+                    <div class="dropdown-option" data-value="nhl">
+                        <img src="images/NHL/nhl-logo.svg" alt="NHL">
+                        <span>NHL</span>
                     </div>
                 </div>
             </div>
@@ -587,7 +607,7 @@
             <div class="modal-header-controls">
                 <button class="nav-arrow" id="prev-team-arrow" title="Previous team">‹</button>
                 <button class="nav-arrow" id="next-team-arrow" title="Next team">›</button>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <button class="close-btn modal-close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div id="stadium-info" class="stadium-info"></div>
         </div>
@@ -599,7 +619,7 @@
             { name: "Buffalo Bills", city: "Buffalo", x: 79, y: 25, logoFile: "bills.webp", stadium: "Highmark Stadium", capacity: "71,608", conference: "afc", division: "afc-east" },
             { name: "Miami Dolphins", city: "Miami", x: 77, y: 95, logoFile: "dolphins.webp", stadium: "Hard Rock Stadium", capacity: "64,767", conference: "afc", division: "afc-east" },
             { name: "New England Patriots", city: "Foxborough", x: 93, y: 27, logoFile: "patriots.webp", stadium: "Gillette Stadium", capacity: "65,878", conference: "afc", division: "afc-east" },
-            { name: "New York Jets", city: "New York", x: 88, y: 34, logoFile: "jets.webp", stadium: "MetLife Stadium", capacity: "82,500", conference: "afc", division: "afc-east" },
+            { name: "New York Jets", city: "New York", x: 88, y: 34, logoFile: "jets.svg", stadium: "MetLife Stadium", capacity: "82,500", conference: "afc", division: "afc-east" },
 
             // AFC North
             { name: "Baltimore Ravens", city: "Baltimore", x: 84, y: 39, logoFile: "ravens.webp", stadium: "M&T Bank Stadium", capacity: "70,745", conference: "afc", division: "afc-north" },
@@ -655,7 +675,7 @@
             // Eastern Conference - Central
             { name: "Chicago Bulls", city: "Chicago", x: 64, y: 29, logoFile: "bulls.webp", arena: "United Center", capacity: "20,917", conference: "eastern", division: "central" },
             { name: "Cleveland Cavaliers", city: "Cleveland", x: 74, y: 31, logoFile: "cavaliers.webp", arena: "Rocket Mortgage FieldHouse", capacity: "19,432", conference: "eastern", division: "central" },
-            { name: "Detroit Pistons", city: "Detroit", x: 72, y: 27, logoFile: "pistons.webp", arena: "Little Caesars Arena", capacity: "20,332", conference: "eastern", division: "central" },
+            { name: "Detroit Pistons", city: "Detroit", x: 72, y: 27, logoFile: "pistons.webp", arenaFile: "pistons-arena.webp", arena: "Little Caesars Arena", capacity: "20,332", conference: "eastern", division: "central" },
             { name: "Indiana Pacers", city: "Indianapolis", x: 67, y: 38, logoFile: "pacers.webp", arena: "Gainbridge Fieldhouse", capacity: "17,923", conference: "eastern", division: "central" },
             { name: "Milwaukee Bucks", city: "Milwaukee", x: 64, y: 24, logoFile: "bucks.webp", arena: "Fiserv Forum", capacity: "17,341", conference: "eastern", division: "central" },
 
@@ -730,6 +750,48 @@
             { name: "Los Angeles Dodgers", city: "Los Angeles", x: 11, y: 56, logoFile: "dodgers.webp", stadium: "Dodger Stadium", capacity: "56,000", conference: "nl", division: "nl-west" },
             { name: "San Diego Padres", city: "San Diego", x: 13, y: 65, logoFile: "padres.webp", stadium: "Petco Park", capacity: "40,209", conference: "nl", division: "nl-west" },
             { name: "San Francisco Giants", city: "San Francisco", x: 4, y: 40, logoFile: "giants.png", stadium: "Oracle Park", capacity: "41,915", conference: "nl", division: "nl-west" }
+        ];
+
+        const nhlTeams = [
+            // Eastern Conference - Atlantic
+            { name: "Boston Bruins", city: "Boston", x: 93, y: 27, logoFile: "bruins.svg", arena: "TD Garden", capacity: "17,850", conference: "eastern", division: "atlantic" },
+            { name: "Buffalo Sabres", city: "Buffalo", x: 79, y: 25, logoFile: "sabres.svg", arena: "KeyBank Center", capacity: "18,595", conference: "eastern", division: "atlantic" },
+            { name: "Detroit Red Wings", city: "Detroit", x: 72, y: 27, logoFile: "red-wings.svg", arena: "Little Caesars Arena", capacity: "19,515", conference: "eastern", division: "atlantic" },
+            { name: "Florida Panthers", city: "Sunrise", x: 77, y: 93, logoFile: "panthers.svg", arena: "Amerant Bank Arena", capacity: "19,250", conference: "eastern", division: "atlantic" },
+            { name: "Montreal Canadiens", city: "Montreal", x: 87, y: 12, logoFile: "canadiens.svg", arena: "Bell Centre", capacity: "21,273", conference: "eastern", division: "atlantic" },
+            { name: "Ottawa Senators", city: "Ottawa", x: 84, y: 17, logoFile: "senators.svg", arena: "Canadian Tire Centre", capacity: "18,652", conference: "eastern", division: "atlantic" },
+            { name: "Tampa Bay Lightning", city: "Tampa", x: 73, y: 86, logoFile: "lightning.svg", arena: "Amalie Arena", capacity: "19,092", conference: "eastern", division: "atlantic" },
+            { name: "Toronto Maple Leafs", city: "Toronto", x: 75, y: 20, logoFile: "maple-leafs.svg", arena: "Scotiabank Arena", capacity: "18,819", conference: "eastern", division: "atlantic" },
+
+            // Eastern Conference - Metropolitan
+            { name: "Carolina Hurricanes", city: "Raleigh", x: 79, y: 54, logoFile: "hurricanes.svg", arena: "Lenovo Center", capacity: "18,680", conference: "eastern", division: "metropolitan" },
+            { name: "Columbus Blue Jackets", city: "Columbus", x: 72, y: 34, logoFile: "blue-jackets.svg", arena: "Nationwide Arena", capacity: "18,500", conference: "eastern", division: "metropolitan" },
+            { name: "New Jersey Devils", city: "Newark", x: 88, y: 34, logoFile: "devils.svg", arena: "Prudential Center", capacity: "16,514", conference: "eastern", division: "metropolitan" },
+            { name: "New York Islanders", city: "Elmont", x: 90, y: 34, logoFile: "islanders.svg", arena: "UBS Arena", capacity: "17,250", conference: "eastern", division: "metropolitan" },
+            { name: "New York Rangers", city: "New York", x: 89, y: 34, logoFile: "rangers.svg", arena: "Madison Square Garden", capacity: "18,006", conference: "eastern", division: "metropolitan" },
+            { name: "Philadelphia Flyers", city: "Philadelphia", x: 86, y: 37, logoFile: "flyers.svg", arena: "Wells Fargo Center", capacity: "19,173", conference: "eastern", division: "metropolitan" },
+            { name: "Pittsburgh Penguins", city: "Pittsburgh", x: 77, y: 35, logoFile: "penguins.svg", arena: "PPG Paints Arena", capacity: "18,187", conference: "eastern", division: "metropolitan" },
+            { name: "Washington Capitals", city: "Washington", x: 83, y: 41, logoFile: "capitals.svg", arena: "Capital One Arena", capacity: "18,573", conference: "eastern", division: "metropolitan" },
+
+            // Western Conference - Central
+            { name: "Utah Mammoth", city: "Salt Lake City", x: 22, y: 33, logoFile: "mammoth.svg", arena: "Delta Center", capacity: "16,020", conference: "western", division: "central" },
+            { name: "Chicago Blackhawks", city: "Chicago", x: 64, y: 29, logoFile: "blackhawks.svg", arena: "United Center", capacity: "19,717", conference: "western", division: "central" },
+            { name: "Colorado Avalanche", city: "Denver", x: 34, y: 38, logoFile: "avalanche.svg", arena: "Ball Arena", capacity: "18,007", conference: "western", division: "central" },
+            { name: "Dallas Stars", city: "Dallas", x: 48, y: 66, logoFile: "stars.svg", arena: "American Airlines Center", capacity: "18,532", conference: "western", division: "central" },
+            { name: "Minnesota Wild", city: "Saint Paul", x: 55, y: 17, logoFile: "wild.svg", arena: "Xcel Energy Center", capacity: "17,954", conference: "western", division: "central" },
+            { name: "Nashville Predators", city: "Nashville", x: 66, y: 52, logoFile: "predators.svg", arena: "Bridgestone Arena", capacity: "17,159", conference: "western", division: "central" },
+            { name: "St. Louis Blues", city: "St. Louis", x: 59, y: 42, logoFile: "blues.svg", arena: "Enterprise Center", capacity: "18,096", conference: "western", division: "central" },
+            { name: "Winnipeg Jets", city: "Winnipeg", x: 46, y: 8, logoFile: "jets.svg", arena: "Canada Life Centre", capacity: "15,225", conference: "western", division: "central" },
+
+            // Western Conference - Pacific
+            { name: "Anaheim Ducks", city: "Anaheim", x: 13, y: 58, logoFile: "ducks.svg", arena: "Honda Center", capacity: "17,174", conference: "western", division: "pacific" },
+            { name: "Calgary Flames", city: "Calgary", x: 27, y: 10, logoFile: "flames.svg", arena: "Scotiabank Saddledome", capacity: "19,289", conference: "western", division: "pacific" },
+            { name: "Edmonton Oilers", city: "Edmonton", x: 24, y: 7, logoFile: "oilers.svg", arena: "Rogers Place", capacity: "18,347", conference: "western", division: "pacific" },
+            { name: "Los Angeles Kings", city: "Los Angeles", x: 11, y: 56, logoFile: "kings.svg", arena: "Crypto.com Arena", capacity: "18,145", conference: "western", division: "pacific" },
+            { name: "San Jose Sharks", city: "San Jose", x: 5, y: 43, logoFile: "sharks.svg", arena: "SAP Center", capacity: "17,435", conference: "western", division: "pacific" },
+            { name: "Seattle Kraken", city: "Seattle", x: 4, y: 6, logoFile: "kraken.svg", arena: "Climate Pledge Arena", capacity: "17,151", conference: "western", division: "pacific" },
+            { name: "Vancouver Canucks", city: "Vancouver", x: 6, y: 3, logoFile: "canucks.svg", arena: "Rogers Arena", capacity: "18,422", conference: "western", division: "pacific" },
+            { name: "Vegas Golden Knights", city: "Las Vegas", x: 17, y: 52, logoFile: "golden-knights.svg", arena: "T-Mobile Arena", capacity: "17,500", conference: "western", division: "pacific" }
         ];
 
         let currentSport = 'nfl';
@@ -816,7 +878,10 @@
 
             teams.forEach(team => {
                 const marker = document.createElement('div');
-                marker.className = 'team-marker';
+                const blueConfs = ['afc', 'eastern', 'al'];
+                const redConfs = ['nfc', 'western', 'nl'];
+                const confColor = blueConfs.includes(team.conference) ? 'conf-blue' : redConfs.includes(team.conference) ? 'conf-red' : '';
+                marker.className = 'team-marker' + (confColor ? ' ' + confColor : '');
                 marker.style.left = `${team.x}%`;
                 marker.style.top = `${team.y}%`;
                 marker.dataset.conference = team.conference;
@@ -824,7 +889,7 @@
                 marker.dataset.baseX = team.x;
                 marker.dataset.baseY = team.y;
 
-                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : 'MLB';
+                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : currentSport === 'nhl' ? 'NHL' : 'MLB';
                 marker.innerHTML = `
                     <img src="images/${sportFolder}/${team.logoFile}" alt="${team.name}" class="team-logo" onerror="console.error('Failed to load logo for ${team.name}: ${sportFolder}/${team.logoFile}')">
                     <div class="team-name">${team.name}</div>
@@ -894,6 +959,8 @@
                     teams = nbaTeams;
                 } else if (currentSport === 'mlb') {
                     teams = mlbTeams;
+                } else if (currentSport === 'nhl') {
+                    teams = nhlTeams;
                 }
 
                 // Update conference and division dropdown options
@@ -957,6 +1024,17 @@
                         <span>National League</span>
                     </div>
                 `;
+            } else if (currentSport === 'nhl') {
+                conferenceOptionsContainer.innerHTML += `
+                    <div class="dropdown-option" data-value="eastern">
+                        <img src="images/NHL/nhl-eastern-logo.svg" alt="Eastern">
+                        <span>Eastern</span>
+                    </div>
+                    <div class="dropdown-option" data-value="western">
+                        <img src="images/NHL/nhl-western-logo.svg" alt="Western">
+                        <span>Western</span>
+                    </div>
+                `;
             }
 
             // Re-attach event listeners
@@ -1017,6 +1095,14 @@
                     <div class="dropdown-option no-logo" data-value="east"><span>East</span></div>
                     <div class="dropdown-option no-logo" data-value="central"><span>Central</span></div>
                     <div class="dropdown-option no-logo" data-value="west"><span>West</span></div>
+                `;
+            } else if (currentSport === 'nhl') {
+                divisionOptionsContainer.innerHTML = `
+                    <div class="dropdown-option no-logo" data-value="all"><span>All</span></div>
+                    <div class="dropdown-option no-logo" data-value="atlantic"><span>Atlantic</span></div>
+                    <div class="dropdown-option no-logo" data-value="metropolitan"><span>Metropolitan</span></div>
+                    <div class="dropdown-option no-logo" data-value="central"><span>Central</span></div>
+                    <div class="dropdown-option no-logo" data-value="pacific"><span>Pacific</span></div>
                 `;
             }
 
@@ -1090,7 +1176,7 @@
                             }
                         }
                     } else {
-                        // NBA uses full division names like "atlantic", "pacific"
+                        // NBA and NHL use full division names like "atlantic", "pacific", "metropolitan"
                         if (marker.dataset.division !== currentDivision) {
                             show = false;
                         }
@@ -1129,15 +1215,15 @@
             // Use venue image from images folder (stadium or arena)
             let venueFileName, venueName, venueLabel, sportFolder;
             if (currentSport === 'nfl' || currentSport === 'mlb') {
-                venueFileName = team.logoFile.replace('.webp', '-stadium.jpg').replace('.png', '-stadium.jpg').replace('.svg', '-stadium.jpg');
+                venueFileName = team.arenaFile || team.logoFile.replace('.webp', '-stadium.jpg').replace('.png', '-stadium.jpg').replace('.svg', '-stadium.jpg');
                 venueName = team.stadium;
                 venueLabel = 'Stadium';
                 sportFolder = currentSport === 'nfl' ? 'NFL' : 'MLB';
             } else {
-                venueFileName = team.logoFile.replace('.webp', '-arena.jpg').replace('.png', '-arena.jpg').replace('.svg', '-arena.jpg');
+                venueFileName = team.arenaFile || team.logoFile.replace('.webp', '-arena.jpg').replace('.png', '-arena.jpg').replace('.svg', '-arena.jpg');
                 venueName = team.arena;
                 venueLabel = 'Arena';
-                sportFolder = 'NBA';
+                sportFolder = currentSport === 'nhl' ? 'NHL' : 'NBA';
             }
             const venueImageUrl = `images/${sportFolder}/${venueFileName}`;
             const teamLogoUrl = `images/${sportFolder}/${team.logoFile}`;
