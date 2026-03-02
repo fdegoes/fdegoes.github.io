@@ -367,10 +367,10 @@
         .team-marker.div-nba-southwest { background: #ffecec; }
 
         /* NHL — 2 shades each */
-        .team-marker.div-nhl-metropolitan { background: #aabbff; }
-        .team-marker.div-nhl-atlantic     { background: #ecf0ff; }
-        .team-marker.div-nhl-central      { background: #ffaaaa; }
-        .team-marker.div-nhl-pacific      { background: #ffecec; }
+        .team-marker.div-nhl-metropolitan { background: #ffaaaa; }
+        .team-marker.div-nhl-atlantic     { background: #ffecec; }
+        .team-marker.div-nhl-central      { background: #aabbff; }
+        .team-marker.div-nhl-pacific      { background: #ecf0ff; }
 
         .team-marker:hover {
             transform: scale(1.3);
@@ -801,7 +801,7 @@
             { name: "Washington Capitals", city: "Washington", x: 83, y: 41, logoFile: "capitals.svg", arena: "Capital One Arena", capacity: "18,573", conference: "eastern", division: "metropolitan" },
 
             // Western Conference - Central
-            { name: "Utah Mammoth", city: "Salt Lake City", x: 22, y: 33, logoFile: "mammoth.png", arena: "Delta Center", capacity: "16,020", conference: "western", division: "central" },
+            { name: "Utah Mammoth", city: "Salt Lake City", x: 22, y: 33, logoFile: "mammoth.svg", arena: "Delta Center", capacity: "16,020", conference: "western", division: "central" },
             { name: "Chicago Blackhawks", city: "Chicago", x: 64, y: 29, logoFile: "blackhawks.svg", arena: "United Center", capacity: "19,717", conference: "western", division: "central" },
             { name: "Colorado Avalanche", city: "Denver", x: 34, y: 38, logoFile: "avalanche.svg", arena: "Ball Arena", capacity: "18,007", conference: "western", division: "central" },
             { name: "Dallas Stars", city: "Dallas", x: 48, y: 66, logoFile: "stars.svg", arena: "American Airlines Center", capacity: "18,532", conference: "western", division: "central" },
@@ -816,7 +816,7 @@
             { name: "Edmonton Oilers", city: "Edmonton", x: 24, y: 7, logoFile: "oilers.svg", arena: "Rogers Place", capacity: "18,347", conference: "western", division: "pacific" },
             { name: "Los Angeles Kings", city: "Los Angeles", x: 11, y: 56, logoFile: "kings.svg", arena: "Crypto.com Arena", capacity: "18,145", conference: "western", division: "pacific" },
             { name: "San Jose Sharks", city: "San Jose", x: 5, y: 43, logoFile: "sharks.svg", arena: "SAP Center", capacity: "17,435", conference: "western", division: "pacific" },
-            { name: "Seattle Kraken", city: "Seattle", x: 4, y: 6, logoFile: "kraken.png", arena: "Climate Pledge Arena", capacity: "17,151", conference: "western", division: "pacific" },
+            { name: "Seattle Kraken", city: "Seattle", x: 4, y: 6, logoFile: "kraken.svg", arena: "Climate Pledge Arena", capacity: "17,151", conference: "western", division: "pacific" },
             { name: "Vancouver Canucks", city: "Vancouver", x: 6, y: 3, logoFile: "canucks.svg", arena: "Rogers Arena", capacity: "18,422", conference: "western", division: "pacific" },
             { name: "Vegas Golden Knights", city: "Las Vegas", x: 17, y: 52, logoFile: "golden-knights.svg", arena: "T-Mobile Arena", capacity: "17,500", conference: "western", division: "pacific" }
         ];
@@ -905,8 +905,8 @@
 
             teams.forEach(team => {
                 const marker = document.createElement('div');
-                const blueConfs = currentSport === 'nfl' ? ['nfc'] : ['afc', 'eastern', 'al'];
-                const redConfs = currentSport === 'nfl' ? ['afc'] : ['nfc', 'western', 'nl'];
+                const blueConfs = currentSport === 'nfl' ? ['nfc'] : currentSport === 'nhl' ? ['western'] : ['afc', 'eastern', 'al'];
+                const redConfs = currentSport === 'nfl' ? ['afc'] : currentSport === 'nhl' ? ['eastern'] : ['nfc', 'western', 'nl'];
                 const confClass = blueConfs.includes(team.conference) ? 'conf-blue' : redConfs.includes(team.conference) ? 'conf-red' : '';
                 let divClass = '';
                 if (currentSport === 'nba') {
