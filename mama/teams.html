@@ -79,7 +79,7 @@
         }
 
         .custom-dropdown.sport-dropdown {
-            min-width: 200px;
+            min-width: 350px;
         }
 
         .dropdown-selected {
@@ -233,6 +233,17 @@
             min-width: 100%;
         }
 
+        .map-content.portrait-map {
+            width: auto;
+            min-width: unset;
+            height: 100%;
+        }
+
+        .map-content.portrait-map .map-svg {
+            width: auto;
+            height: 100%;
+        }
+
         .map-svg {
             width: 100%;
             height: auto;
@@ -371,6 +382,9 @@
         .team-marker.div-nhl-atlantic     { background: #ffecec; }
         .team-marker.div-nhl-central      { background: #aabbff; }
         .team-marker.div-nhl-pacific      { background: #ecf0ff; }
+
+        /* PL — no conferences, single neutral background */
+        .team-marker.div-pl { background: #f0f0f0; border: 2px solid #555555; }
 
         .team-marker:hover {
             transform: scale(1.3);
@@ -555,7 +569,7 @@
 </head>
 <body>
     <div class="controls">
-        <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px;">
             <label class="filter-label">Sport:</label>
             <div class="custom-dropdown sport-dropdown" id="sport-dropdown">
                 <div class="dropdown-selected">
@@ -579,11 +593,15 @@
                         <img src="images/NHL/nhl-logo.svg" alt="NHL">
                         <span>NHL</span>
                     </div>
+                    <div class="dropdown-option" data-value="pl">
+                        <img src="images/PL/pl-logo.svg" alt="PL">
+                        <span>Premier League</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px;">
             <label class="filter-label">Conference:</label>
             <div class="custom-dropdown" id="conference-dropdown">
                 <div class="dropdown-selected">
@@ -596,7 +614,7 @@
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px;">
             <label class="filter-label">Division:</label>
             <div class="custom-dropdown" id="division-dropdown">
                 <div class="dropdown-selected">
@@ -620,7 +638,7 @@
 
         <div class="map-wrapper" id="map-wrapper">
             <div class="map-content" id="map-content">
-                <img src="images/us-map.webp" alt="US Map" class="map-svg">
+                <img id="map-img" src="images/us-map.webp" alt="Map" class="map-svg">
 
                 <!-- Team markers will be positioned here -->
                 <div id="teams-container"></div>
@@ -821,6 +839,30 @@
             { name: "Vegas Golden Knights", city: "Las Vegas", x: 17, y: 52, logoFile: "golden-knights.svg", arena: "T-Mobile Arena", capacity: "17,500", conference: "western", division: "pacific" }
         ];
 
+        const plTeams = [
+            { name: "Arsenal",           city: "London",         x: 73.9, y: 70.9, logoFile: "arsenal.svg",          stadium: "Emirates Stadium",          capacity: "60,704" },
+            { name: "Aston Villa",       city: "Birmingham",     x: 50.8, y: 55.2, logoFile: "aston-villa.svg",      stadium: "Villa Park",                capacity: "42,682" },
+            { name: "Bournemouth",       city: "Bournemouth",    x: 51.4, y: 84.5, logoFile: "bournemouth.svg",      stadium: "Vitality Stadium",          capacity: "11,307" },
+            { name: "Brentford",         city: "London",         x: 71.5, y: 72.0, logoFile: "brentford.svg",        stadium: "Gtech Community Stadium",   capacity: "17,250" },
+            { name: "Brighton",          city: "Brighton",       x: 74.2, y: 82.4, logoFile: "brighton.svg",         stadium: "Amex Stadium",              capacity: "31,800" },
+            { name: "Burnley",           city: "Burnley",        x: 46.3, y: 34.0, logoFile: "burnley.svg",          stadium: "Turf Moor",                 capacity: "21,944" },
+            { name: "Chelsea",           city: "London",         x: 72.8, y: 72.1, logoFile: "chelsea.svg",          stadium: "Stamford Bridge",           capacity: "40,343" },
+            { name: "Crystal Palace",    city: "London",         x: 74.2, y: 73.5, logoFile: "crystal-palace.svg",   stadium: "Selhurst Park",             capacity: "25,456" },
+            { name: "Everton",           city: "Liverpool",      x: 36.7, y: 39.8, logoFile: "everton.svg",          stadium: "Hill Dickinson Stadium",    capacity: "52,888" },
+            { name: "Fulham",            city: "London",         x: 72.4, y: 72.2, logoFile: "fulham.svg",           stadium: "Craven Cottage",            capacity: "25,700" },
+            { name: "Leeds United",      city: "Leeds",          x: 54.8, y: 34.2, logoFile: "leeds.svg",            stadium: "Elland Road",               capacity: "37,890" },
+            { name: "Liverpool",         city: "Liverpool",      x: 36.8, y: 39.9, logoFile: "liverpool.svg",        stadium: "Anfield",                   capacity: "61,276" },
+            { name: "Manchester City",   city: "Manchester",     x: 46.7, y: 39.1, logoFile: "man-city.svg",         stadium: "Etihad Stadium",            capacity: "53,400" },
+            { name: "Manchester United", city: "Manchester",     x: 45.5, y: 39.4, logoFile: "man-united.svg",       stadium: "Old Trafford",              capacity: "74,140" },
+            { name: "Newcastle United",  city: "Newcastle",      x: 54.2, y: 14.4, logoFile: "newcastle.svg",        stadium: "St. James' Park",           capacity: "52,305" },
+            { name: "Nottingham Forest", city: "Nottingham",     x: 60.6, y: 48.0, logoFile: "nottm-forest.svg",     stadium: "City Ground",               capacity: "30,445" },
+            { name: "Sheffield United",  city: "Sheffield",      x: 56.1, y: 40.9, logoFile: "sheffield-united.svg", stadium: "Bramall Lane",              capacity: "32,702" },
+            { name: "Tottenham Hotspur", city: "London",         x: 74.4, y: 70.1, logoFile: "tottenham.svg",        stadium: "Tottenham Hotspur Stadium", capacity: "62,850" },
+            { name: "West Ham United",   city: "London",         x: 75.5, y: 71.2, logoFile: "west-ham.svg",         stadium: "London Stadium",            capacity: "62,500" },
+            { name: "Wolverhampton",     city: "Wolverhampton",  x: 47.6, y: 53.8, logoFile: "wolves.svg",           stadium: "Molineux Stadium",          capacity: "31,750" },
+        ];
+        plTeams.forEach(t => { t.conference = "pl"; t.division = "pl"; });
+
         let currentSport = 'nfl';
         let teams = nflTeams;
         let zoomLevel = 1;
@@ -915,6 +957,8 @@
                     divClass = 'div-nhl-' + team.division;
                 } else if (['nfl', 'mlb'].includes(currentSport)) {
                     divClass = 'div-' + team.division;
+                } else if (currentSport === 'pl') {
+                    divClass = 'div-pl';
                 }
                 marker.className = 'team-marker' + (confClass ? ' ' + confClass : '') + (divClass ? ' ' + divClass : '');
                 marker.style.left = `${team.x}%`;
@@ -924,7 +968,7 @@
                 marker.dataset.baseX = team.x;
                 marker.dataset.baseY = team.y;
 
-                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : currentSport === 'nhl' ? 'NHL' : 'MLB';
+                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : currentSport === 'nhl' ? 'NHL' : currentSport === 'pl' ? 'PL' : 'MLB';
                 marker.innerHTML = `
                     <img src="images/${sportFolder}/${team.logoFile}" alt="${team.name}" class="team-logo" onerror="console.error('Failed to load logo for ${team.name}: ${sportFolder}/${team.logoFile}')">
                     <div class="team-name">${team.name}</div>
@@ -996,6 +1040,18 @@
                     teams = mlbTeams;
                 } else if (currentSport === 'nhl') {
                     teams = nhlTeams;
+                } else if (currentSport === 'pl') {
+                    teams = plTeams;
+                }
+
+                // Swap map image
+                const mapImg = document.getElementById('map-img');
+                mapImg.src = currentSport === 'pl' ? 'images/uk-map.svg' : 'images/us-map.webp';
+                const mapContent = document.getElementById('map-content');
+                if (currentSport === 'pl') {
+                    mapContent.classList.add('portrait-map');
+                } else {
+                    mapContent.classList.remove('portrait-map');
                 }
 
                 // Update conference and division dropdown options
@@ -1072,6 +1128,17 @@
                 `;
             }
 
+            // Show/hide conference and division dropdowns for PL
+            const confContainer = document.getElementById('conference-dropdown').parentElement;
+            const divContainer = document.getElementById('division-dropdown').parentElement;
+            if (currentSport === 'pl') {
+                confContainer.style.display = 'none';
+                divContainer.style.display = 'none';
+            } else {
+                confContainer.style.display = '';
+                divContainer.style.display = '';
+            }
+
             // Re-attach event listeners
             attachConferenceListeners();
         }
@@ -1128,6 +1195,7 @@
                     eastern:  [['atlantic','Atlantic'],['metropolitan','Metropolitan']],
                     western:  [['central','Central'],['pacific','Pacific']],
                 },
+                pl: { all: [], pl: [] },
             };
 
             const conf = currentConference in divisionsByConference[currentSport]
@@ -1253,11 +1321,11 @@
 
             // Use venue image from images folder (stadium or arena)
             let venueFileName, venueName, venueLabel, sportFolder;
-            if (currentSport === 'nfl' || currentSport === 'mlb') {
+            if (currentSport === 'nfl' || currentSport === 'mlb' || currentSport === 'pl') {
                 venueFileName = team.arenaFile || team.logoFile.replace('.webp', '-stadium.jpg').replace('.png', '-stadium.jpg').replace('.svg', '-stadium.jpg');
                 venueName = team.stadium;
                 venueLabel = 'Stadium';
-                sportFolder = currentSport === 'nfl' ? 'NFL' : 'MLB';
+                sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'pl' ? 'PL' : 'MLB';
             } else {
                 venueFileName = team.arenaFile || team.logoFile.replace('.webp', '-arena.jpg').replace('.png', '-arena.jpg').replace('.svg', '-arena.jpg');
                 venueName = team.arena;
