@@ -212,9 +212,6 @@
             height: 100%;
             overflow: auto;
             cursor: grab;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -225,29 +222,32 @@
             cursor: grabbing;
         }
 
+        /* scroll-sizer makes the scrollable area match the zoomed dimensions */
+        .map-scroll-sizer {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
         .map-content {
             position: relative;
-            transform-origin: center center;
+            transform-origin: top left;
             transition: transform 0.3s ease;
-            width: 100%;
-            min-width: 100%;
+            flex-shrink: 0;
+            width: 1600px;
+            height: 900px;
+            overflow: hidden;
         }
 
         .map-content.portrait-map {
-            width: auto;
-            min-width: unset;
-            height: 100%;
-        }
-
-        .map-content.portrait-map .map-svg {
-            width: auto;
-            height: 100%;
+            width: 900px;
+            height: 1200px;
         }
 
         .map-svg {
-            width: 100%;
-            height: auto;
             display: block;
+            width: 100%;
+            height: 100%;
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -273,18 +273,14 @@
         }
 
         .zoom-controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
             display: flex;
             flex-direction: row;
+            align-items: center;
+            justify-content: center;
             gap: 10px;
-            z-index: 500;
-            background: rgba(255, 255, 255, 0.95);
+            margin-top: 12px;
             padding: 10px 15px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .zoom-btn {
@@ -401,6 +397,11 @@
         .map-content.zoomed-more .team-marker {
             width: 35px;
             height: 35px;
+        }
+
+        .map-content.zoomed-max .team-marker {
+            width: 25px;
+            height: 25px;
         }
 
         .team-logo {
@@ -629,21 +630,23 @@
     </div>
 
     <div class="map-container">
-        <div class="zoom-controls">
-            <button class="zoom-btn" id="zoom-in">+</button>
-            <div class="zoom-level" id="zoom-level">100%</div>
-            <button class="zoom-btn" id="zoom-out">−</button>
-            <button class="zoom-btn" id="zoom-reset" title="Reset Zoom">⟲</button>
-        </div>
-
         <div class="map-wrapper" id="map-wrapper">
+            <div class="map-scroll-sizer" id="map-scroll-sizer">
             <div class="map-content" id="map-content">
                 <img id="map-img" src="images/us-map.webp" alt="Map" class="map-svg">
 
                 <!-- Team markers will be positioned here -->
                 <div id="teams-container"></div>
             </div>
+            </div>
         </div>
+    </div>
+
+    <div class="zoom-controls">
+        <button class="zoom-btn" id="zoom-in">+</button>
+        <div class="zoom-level" id="zoom-level">100%</div>
+        <button class="zoom-btn" id="zoom-out">−</button>
+        <button class="zoom-btn" id="zoom-reset" title="Reset Zoom">⟲</button>
     </div>
 
     <!-- Modal for stadium info -->
@@ -740,7 +743,7 @@
 
             // Western Conference - Pacific
             { name: "Golden State Warriors", city: "San Francisco", x: 4, y: 40, logoFile: "warriors.webp", arena: "Chase Center", capacity: "18,064", conference: "western", division: "pacific" },
-            { name: "LA Clippers", city: "Los Angeles", x: 11, y: 56, logoFile: "clippers.webp", arena: "Intuit Dome", capacity: "18,000", conference: "western", division: "pacific" },
+            { name: "Los Angeles Clippers", city: "Los Angeles", x: 11, y: 56, logoFile: "clippers.webp", arena: "Intuit Dome", capacity: "18,000", conference: "western", division: "pacific" },
             { name: "Los Angeles Lakers", city: "Los Angeles", x: 11, y: 56, logoFile: "lakers.webp", arena: "Crypto.com Arena", capacity: "18,997", conference: "western", division: "pacific" },
             { name: "Phoenix Suns", city: "Phoenix", x: 22, y: 64, logoFile: "suns.webp", arena: "Footprint Center", capacity: "17,071", conference: "western", division: "pacific" },
             { name: "Sacramento Kings", city: "Sacramento", x: 6, y: 42, logoFile: "kings.webp", arena: "Golden 1 Center", capacity: "17,583", conference: "western", division: "pacific" },
@@ -842,9 +845,9 @@
         const plTeams = [
             { name: "Arsenal",           city: "London",         x: 73.9, y: 70.9, logoFile: "arsenal.svg",          stadium: "Emirates Stadium",          capacity: "60,704" },
             { name: "Aston Villa",       city: "Birmingham",     x: 50.8, y: 55.2, logoFile: "aston-villa.svg",      stadium: "Villa Park",                capacity: "42,682" },
-            { name: "Bournemouth",       city: "Bournemouth",    x: 51.4, y: 84.5, logoFile: "bournemouth.svg",      stadium: "Vitality Stadium",          capacity: "11,307" },
+            { name: "Bournemouth",       city: "Bournemouth",    x: 51.4, y: 77.5, logoFile: "bournemouth.svg",      stadium: "Vitality Stadium",          capacity: "11,307" },
             { name: "Brentford",         city: "London",         x: 71.5, y: 72.0, logoFile: "brentford.svg",        stadium: "Gtech Community Stadium",   capacity: "17,250" },
-            { name: "Brighton",          city: "Brighton",       x: 74.2, y: 82.4, logoFile: "brighton.svg",         stadium: "Amex Stadium",              capacity: "31,800" },
+            { name: "Brighton",          city: "Brighton",       x: 74.2, y: 77.0, logoFile: "brighton.svg",         stadium: "Amex Stadium",              capacity: "31,800" },
             { name: "Burnley",           city: "Burnley",        x: 46.3, y: 34.0, logoFile: "burnley.svg",          stadium: "Turf Moor",                 capacity: "21,944" },
             { name: "Chelsea",           city: "London",         x: 72.8, y: 72.1, logoFile: "chelsea.svg",          stadium: "Stamford Bridge",           capacity: "40,343" },
             { name: "Crystal Palace",    city: "London",         x: 74.2, y: 73.5, logoFile: "crystal-palace.svg",   stadium: "Selhurst Park",             capacity: "25,456" },
@@ -871,8 +874,22 @@
         let teamMarkers = [];
 
         function spreadOverlappingMarkers() {
+            // Marker half-size as % of map-content so markers don't clip the edge
+            const mc = document.getElementById('map-content');
+            const markerHalfPctX = (25 / mc.offsetWidth)  * 100;
+            const markerHalfPctY = (25 / mc.offsetHeight) * 100;
+            const minX = markerHalfPctX, maxX = 100 - markerHalfPctX;
+            const minY = markerHalfPctY, maxY = 100 - markerHalfPctY;
+
+            function clampX(v) { return Math.max(minX, Math.min(maxX, v)); }
+            function clampY(v) { return Math.max(minY, Math.min(maxY, v)); }
+            function place(marker, x, y) {
+                marker.style.left = `${clampX(x)}%`;
+                marker.style.top  = `${clampY(y)}%`;
+            }
+
             // Group markers by similar positions
-            const threshold = 1.5; // Distance threshold to consider overlapping
+            const threshold = 1.5;
             const groups = [];
 
             teamMarkers.forEach(marker => {
@@ -881,7 +898,6 @@
                 const x = parseFloat(marker.dataset.baseX);
                 const y = parseFloat(marker.dataset.baseY);
 
-                // Find if marker belongs to existing group
                 let foundGroup = false;
                 for (let group of groups) {
                     const groupX = group[0].x;
@@ -898,44 +914,31 @@
                 }
             });
 
-            // Spread out groups with multiple markers
-            const spreadDistance = 2.5 / zoomLevel; // More spread when zoomed in
+            // Spread out groups — increase distance as zoom increases
+            const spreadDistance = 2.5 * Math.max(1, zoomLevel * 0.8);
             groups.forEach(group => {
                 if (group.length > 1) {
-                    // Calculate center of group
                     const centerX = group.reduce((sum, m) => sum + m.x, 0) / group.length;
                     const centerY = group.reduce((sum, m) => sum + m.y, 0) / group.length;
 
-                    // Arrange in a circle or grid pattern
                     if (group.length === 2) {
-                        // Two markers: spread horizontally
-                        group[0].marker.style.left = `${centerX - spreadDistance}%`;
-                        group[0].marker.style.top = `${centerY}%`;
-                        group[1].marker.style.left = `${centerX + spreadDistance}%`;
-                        group[1].marker.style.top = `${centerY}%`;
+                        place(group[0].marker, centerX - spreadDistance, centerY);
+                        place(group[1].marker, centerX + spreadDistance, centerY);
                     } else if (group.length === 3) {
-                        // Three markers: triangle pattern
-                        group[0].marker.style.left = `${centerX}%`;
-                        group[0].marker.style.top = `${centerY - spreadDistance}%`;
-                        group[1].marker.style.left = `${centerX - spreadDistance}%`;
-                        group[1].marker.style.top = `${centerY + spreadDistance}%`;
-                        group[2].marker.style.left = `${centerX + spreadDistance}%`;
-                        group[2].marker.style.top = `${centerY + spreadDistance}%`;
+                        place(group[0].marker, centerX,                  centerY - spreadDistance);
+                        place(group[1].marker, centerX - spreadDistance, centerY + spreadDistance);
+                        place(group[2].marker, centerX + spreadDistance, centerY + spreadDistance);
                     } else {
-                        // Four or more: circular pattern
                         const angleStep = (2 * Math.PI) / group.length;
                         group.forEach((item, idx) => {
                             const angle = idx * angleStep;
-                            const offsetX = Math.cos(angle) * spreadDistance;
-                            const offsetY = Math.sin(angle) * spreadDistance;
-                            item.marker.style.left = `${centerX + offsetX}%`;
-                            item.marker.style.top = `${centerY + offsetY}%`;
+                            place(item.marker,
+                                centerX + Math.cos(angle) * spreadDistance,
+                                centerY + Math.sin(angle) * spreadDistance);
                         });
                     }
                 } else {
-                    // Single marker: use base position
-                    group[0].marker.style.left = `${group[0].x}%`;
-                    group[0].marker.style.top = `${group[0].y}%`;
+                    place(group[0].marker, group[0].x, group[0].y);
                 }
             });
         }
@@ -990,6 +993,7 @@
 
         // Initial load
         loadTeams();
+        document.getElementById('map-img').onload = () => updateZoom();
 
         // Filter state
         let currentConference = 'all';
@@ -1047,6 +1051,7 @@
                 // Swap map image
                 const mapImg = document.getElementById('map-img');
                 mapImg.src = currentSport === 'pl' ? 'images/uk-map.svg' : 'images/us-map.webp';
+                mapImg.onload = () => updateZoom();
                 const mapContent = document.getElementById('map-content');
                 if (currentSport === 'pl') {
                     mapContent.classList.add('portrait-map');
@@ -1392,24 +1397,52 @@
 
         // Zoom functionality
         const minZoom = 0.5;
-        const maxZoom = 3;
+        const maxZoom = 6;
         const zoomStep = 0.2;
 
         const mapContent = document.getElementById('map-content');
         const mapWrapper = document.getElementById('map-wrapper');
+        const mapScrollSizer = document.getElementById('map-scroll-sizer');
         const zoomLevelDisplay = document.getElementById('zoom-level');
         const zoomInBtn = document.getElementById('zoom-in');
         const zoomOutBtn = document.getElementById('zoom-out');
         const zoomResetBtn = document.getElementById('zoom-reset');
 
         function updateZoom() {
-            // Use transform scale only - markers will scale with the map
-            mapContent.style.transform = `scale(${zoomLevel})`;
+            // Compute the scale that makes the map fill the wrapper at 100%
+            const wrapperW = mapWrapper.clientWidth;
+            const wrapperH = mapWrapper.clientHeight;
+            const naturalW = mapContent.offsetWidth;
+            const naturalH = mapContent.offsetHeight;
+            const fitScale = Math.min(wrapperW / naturalW, wrapperH / naturalH);
+            const totalScale = fitScale * zoomLevel;
+
+            const scaledW = naturalW * totalScale;
+            const scaledH = naturalH * totalScale;
+
+            // Sizer is at least the wrapper size so content stays centered when smaller
+            const sizerW = Math.max(wrapperW, scaledW);
+            const sizerH = Math.max(wrapperH, scaledH);
+
+            // Center the map visually within the sizer
+            // transform-origin is top-left, so margin offsets the DOM origin
+            const marginLeft = (sizerW - scaledW) / 2;
+            const marginTop  = (sizerH - scaledH) / 2;
+
+            mapContent.style.transform = `scale(${totalScale})`;
+            mapContent.style.marginLeft = `${marginLeft}px`;
+            mapContent.style.marginTop  = `${marginTop}px`;
             zoomLevelDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
 
+            // Make the sizer match so the scroll area expands when zoomed in
+            mapScrollSizer.style.width  = `${sizerW}px`;
+            mapScrollSizer.style.height = `${sizerH}px`;
+
             // Add classes for different zoom levels to adjust marker size
-            mapContent.classList.remove('zoomed', 'zoomed-more');
-            if (zoomLevel >= 2) {
+            mapContent.classList.remove('zoomed', 'zoomed-more', 'zoomed-max');
+            if (zoomLevel >= 4) {
+                mapContent.classList.add('zoomed-max');
+            } else if (zoomLevel >= 2) {
                 mapContent.classList.add('zoomed-more');
             } else if (zoomLevel >= 1.4) {
                 mapContent.classList.add('zoomed');
@@ -1559,6 +1592,8 @@
                 initialDistance = 0;
             }
         });
+
+        window.addEventListener('resize', () => updateZoom());
     </script>
 </body>
 </html>
