@@ -239,6 +239,25 @@
             overflow: hidden;
         }
 
+        .map-content.f1-mode {
+            width: 100%;
+            height: 100%;
+            transform: none !important;
+            margin: 0 !important;
+            overflow: hidden;
+        }
+
+        .map-scroll-sizer.f1-mode {
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden;
+        }
+
+        .map-wrapper.f1-mode {
+            overflow: hidden;
+            cursor: default;
+        }
+
         .map-content.portrait-map {
             width: 900px;
             height: 1200px;
@@ -381,6 +400,79 @@
 
         /* PL — no conferences, single neutral background */
         .team-marker.div-pl { background: #f0f0f0; border: 2px solid #555555; }
+
+        /* F1 grid layout */
+        .f1-grid {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 16px;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .f1-grid.visible {
+            display: grid;
+        }
+
+        .f1-team-card {
+            cursor: pointer;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.15);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            background: rgba(255,255,255,0.08);
+            box-sizing: border-box;
+        }
+
+        .f1-team-card:hover {
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.18);
+        }
+
+        .f1-team-logo {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .f1-team-label {
+            display: none;
+        }
+
+        /* F1 modal content */
+        .f1-car-img {
+            width: 100%;
+            border-radius: 10px;
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .f1-drivers-grid {
+                flex-direction: column;
+            }
+            .f1-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(6, 1fr);
+            }
+        }
 
         .team-marker:hover {
             transform: scale(1.3);
@@ -598,6 +690,10 @@
                         <img src="images/PL/pl-logo.svg" alt="PL">
                         <span>Premier League</span>
                     </div>
+                    <div class="dropdown-option" data-value="f1">
+                        <img src="images/F1/F1.png" alt="F1">
+                        <span>Formula 1</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -627,6 +723,20 @@
                 </div>
             </div>
         </div>
+
+        <div style="display: none; flex-direction: column; align-items: flex-start; gap: 6px;" id="f1-view-container">
+            <label class="filter-label">View:</label>
+            <div class="custom-dropdown" id="f1-view-dropdown" style="min-width: 160px;">
+                <div class="dropdown-selected">
+                    <span id="selected-f1-view-text">Cars</span>
+                    <div class="dropdown-arrow">▼</div>
+                </div>
+                <div class="dropdown-options" id="f1-view-options">
+                    <div class="dropdown-option no-logo" data-value="cars"><span>Cars</span></div>
+                    <div class="dropdown-option no-logo" data-value="drivers"><span>Drivers</span></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="map-container">
@@ -637,6 +747,9 @@
 
                 <!-- Team markers will be positioned here -->
                 <div id="teams-container"></div>
+
+                <!-- F1 grid (replaces map for Formula 1) -->
+                <div id="f1-grid" class="f1-grid"></div>
             </div>
             </div>
         </div>
@@ -715,8 +828,8 @@
         const nbaTeams = [
             // Eastern Conference - Atlantic
             { name: "Boston Celtics", city: "Boston", x: 93, y: 27, logoFile: "celtics.webp", arena: "TD Garden", capacity: "19,156", conference: "eastern", division: "atlantic" },
-            { name: "Brooklyn Nets", city: "Brooklyn", x: 88, y: 34, logoFile: "nets.webp", arena: "Barclays Center", capacity: "17,732", conference: "eastern", division: "atlantic" },
-            { name: "New York Knicks", city: "New York", x: 88, y: 34, logoFile: "knicks.webp", arena: "Madison Square Garden", capacity: "19,812", conference: "eastern", division: "atlantic" },
+            { name: "Brooklyn Nets", city: "Brooklyn", x: 89, y: 34, logoFile: "nets.webp", arena: "Barclays Center", capacity: "17,732", conference: "eastern", division: "atlantic" },
+            { name: "New York Knicks", city: "New York", x: 89, y: 34, logoFile: "knicks.webp", arena: "Madison Square Garden", capacity: "19,812", conference: "eastern", division: "atlantic" },
             { name: "Philadelphia 76ers", city: "Philadelphia", x: 86, y: 37, logoFile: "76ers.webp", arena: "Wells Fargo Center", capacity: "20,478", conference: "eastern", division: "atlantic" },
             { name: "Toronto Raptors", city: "Toronto", x: 75, y: 20, logoFile: "raptors.webp", arena: "Scotiabank Arena", capacity: "19,800", conference: "eastern", division: "atlantic" },
 
@@ -730,7 +843,7 @@
             // Eastern Conference - Southeast
             { name: "Atlanta Hawks", city: "Atlanta", x: 70, y: 62, logoFile: "hawks.webp", arena: "State Farm Arena", capacity: "16,888", conference: "eastern", division: "southeast" },
             { name: "Charlotte Hornets", city: "Charlotte", x: 76, y: 56, logoFile: "hornets.webp", arena: "Spectrum Center", capacity: "19,077", conference: "eastern", division: "southeast" },
-            { name: "Miami Heat", city: "Miami", x: 80, y: 95, logoFile: "heat.webp", arena: "Kaseya Center", capacity: "19,600", conference: "eastern", division: "southeast" },
+            { name: "Miami Heat", city: "Miami", x: 80, y: 93, logoFile: "heat.webp", arena: "Kaseya Center", capacity: "19,600", conference: "eastern", division: "southeast" },
             { name: "Orlando Magic", city: "Orlando", x: 78, y: 82, logoFile: "magic.svg", arena: "Kia Center", capacity: "18,846", conference: "eastern", division: "southeast" },
             { name: "Washington Wizards", city: "Washington", x: 83, y: 41, logoFile: "wizards.webp", arena: "Capital One Arena", capacity: "20,356", conference: "eastern", division: "southeast" },
 
@@ -780,7 +893,7 @@
 
             // National League East
             { name: "Atlanta Braves", city: "Atlanta", x: 70, y: 62, logoFile: "braves.webp", stadium: "Truist Park", capacity: "41,149", conference: "nl", division: "nl-east" },
-            { name: "Miami Marlins", city: "Miami", x: 80, y: 95, logoFile: "marlins.webp", stadium: "loanDepot park", capacity: "36,742", conference: "nl", division: "nl-east" },
+            { name: "Miami Marlins", city: "Miami", x: 80, y: 93, logoFile: "marlins.webp", stadium: "loanDepot park", capacity: "36,742", conference: "nl", division: "nl-east" },
             { name: "New York Mets", city: "New York", x: 88, y: 34, logoFile: "mets.webp", stadium: "Citi Field", capacity: "41,922", conference: "nl", division: "nl-east" },
             { name: "Philadelphia Phillies", city: "Philadelphia", x: 86, y: 37, logoFile: "phillies.webp", stadium: "Citizens Bank Park", capacity: "42,901", conference: "nl", division: "nl-east" },
             { name: "Washington Nationals", city: "Washington", x: 83, y: 41, logoFile: "nationals.webp", stadium: "Nationals Park", capacity: "41,339", conference: "nl", division: "nl-east" },
@@ -866,6 +979,22 @@
         ];
         plTeams.forEach(t => { t.conference = "pl"; t.division = "pl"; });
 
+        const f1Teams = [
+            { name: "Mercedes",       logo: "logos/mercedes.webp",      car: "cars/mercedes.webp",       drivers: ["George Russell",    "Kimi Antonelli"],   driverCards: ["drivers/card_George_Russell.png",    "drivers/card_Kimi_Antonelli.png"]   },
+            { name: "Ferrari",        logo: "logos/ferrari.webp",       car: "cars/ferrari.webp",        drivers: ["Charles Leclerc",   "Lewis Hamilton"],   driverCards: ["drivers/card_Charles_Leclerc.png",   "drivers/card_Lewis_Hamilton.png"]   },
+            { name: "McLaren",        logo: "logos/mclaren.webp",       car: "cars/mclaren.webp",        drivers: ["Lando Norris",      "Oscar Piastri"],    driverCards: ["drivers/card_Lando_Norris.png",      "drivers/card_Oscar_Piastri.png"]    },
+            { name: "Red Bull Racing",logo: "logos/red_bull.webp",      car: "cars/red_bull.webp",       drivers: ["Max Verstappen",    "Isack Hadjar"],     driverCards: ["drivers/card_Max_Verstappen.png",    "drivers/card_Isack_Hadjar.png"]     },
+            { name: "Aston Martin",   logo: "logos/aston_martin.webp",  car: "cars/aston_martin.webp",   drivers: ["Fernando Alonso",   "Lance Stroll"],     driverCards: ["drivers/card_Fernando_Alonso.png",   "drivers/card_Lance_Stroll.png"]     },
+            { name: "Alpine",         logo: "logos/alpine.webp",        car: "cars/alpine.webp",         drivers: ["Pierre Gasly",      "Franco Colapinto"], driverCards: ["drivers/card_Pierre_Gasly.png",      "drivers/card_Franco_Colapinto.png"] },
+            { name: "Williams",       logo: "logos/williams.webp",      car: "cars/williams.webp",       drivers: ["Carlos Sainz",      "Alexander Albon"],  driverCards: ["drivers/card_Carlos_Sainz.png",      "drivers/card_Alexander_Albon.png"]  },
+            { name: "Racing Bulls",   logo: "logos/racing_bulls.webp",  car: "cars/racing_bulls.webp",   drivers: ["Liam Lawson",       "Arvid Lindblad"],   driverCards: ["drivers/card_Liam_Lawson.png",       "drivers/card_Arvid_Lindblad.png"]   },
+            { name: "Haas",           logo: "logos/haas.webp",          car: "cars/haas.webp",           drivers: ["Esteban Ocon",      "Oliver Bearman"],   driverCards: ["drivers/card_Esteban_Ocon.png",      "drivers/card_Oliver_Bearman.png"]   },
+            { name: "Audi",           logo: "logos/audi.webp",          car: "cars/audi.webp",           drivers: ["Nico Hulkenberg",   "Gabriel Bortoleto"],driverCards: ["drivers/card_Nico_Hulkenberg.png",   "drivers/card_Gabriel_Bortoleto.png"]},
+            { name: "Cadillac",       logo: "logos/cadillac.webp",      car: "cars/cadillac.webp",       drivers: ["Sergio Perez",      "Valtteri Bottas"],  driverCards: ["drivers/card_Sergio_Perez.png",      "drivers/card_Valtteri_Bottas.png"]  },
+        ];
+
+        let f1View = 'cars'; // 'cars' or 'drivers'
+
         let currentSport = 'nfl';
         let teams = nflTeams;
         let zoomLevel = 1;
@@ -944,6 +1073,44 @@
         }
 
         function loadTeams() {
+            const f1Grid = document.getElementById('f1-grid');
+            const mapContent = document.getElementById('map-content');
+            const mapScrollSizer = document.getElementById('map-scroll-sizer');
+            const mapWrapper = document.getElementById('map-wrapper');
+            const zoomControls = document.querySelector('.zoom-controls');
+
+            if (currentSport === 'f1') {
+                // Hide map elements, show F1 grid
+                document.getElementById('map-img').style.display = 'none';
+                container.style.display = 'none';
+                mapContent.classList.add('f1-mode');
+                mapScrollSizer.classList.add('f1-mode');
+                mapWrapper.classList.add('f1-mode');
+                // Set explicit pixel dimensions so the grid fills exactly
+                const wh = mapWrapper.clientHeight;
+                const ww = mapWrapper.clientWidth;
+                mapScrollSizer.style.width = ww + 'px';
+                mapScrollSizer.style.height = wh + 'px';
+                mapContent.style.transform = '';
+                mapContent.style.marginLeft = '0';
+                mapContent.style.marginTop = '0';
+                mapContent.style.width = ww + 'px';
+                mapContent.style.height = wh + 'px';
+                zoomControls.style.display = 'none';
+                f1Grid.classList.add('visible');
+                loadF1Grid();
+                return;
+            }
+
+            // Show map elements, hide F1 grid
+            document.getElementById('map-img').style.display = '';
+            container.style.display = '';
+            mapContent.classList.remove('f1-mode');
+            mapScrollSizer.classList.remove('f1-mode');
+            mapWrapper.classList.remove('f1-mode');
+            zoomControls.style.display = '';
+            f1Grid.classList.remove('visible');
+
             // Clear existing markers
             container.innerHTML = '';
             teamMarkers = [];
@@ -977,10 +1144,6 @@
                     <div class="team-name">${team.name}</div>
                 `;
 
-                if (team.name === 'Seattle Seahawks') {
-                    console.log('Loading Seahawks:', team, 'Position:', team.x, team.y);
-                }
-
                 marker.addEventListener('click', () => showVenue(team));
 
                 container.appendChild(marker);
@@ -989,6 +1152,83 @@
 
             // Apply initial positioning
             spreadOverlappingMarkers();
+        }
+
+        function loadF1Grid() {
+            const f1Grid = document.getElementById('f1-grid');
+            f1Grid.innerHTML = '';
+            f1Teams.forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'f1-team-card';
+                card.innerHTML = `<img src="images/F1/${team.logo}" alt="${team.name}" class="f1-team-logo" title="${team.name}">`;
+                card.addEventListener('click', () => showF1Team(team));
+                f1Grid.appendChild(card);
+            });
+        }
+
+        // Flat list of all drivers: [{team, driverIdx}] across all teams in order
+        const allF1Drivers = f1Teams.flatMap(team =>
+            team.drivers.map((_, i) => ({ team, driverIdx: i }))
+        );
+
+        function showF1Team(team) {
+            if (f1View === 'drivers') {
+                // Open on the first driver of the clicked team
+                const idx = allF1Drivers.findIndex(d => d.team === team && d.driverIdx === 0);
+                showF1Driver(idx);
+            } else {
+                showF1Car(f1Teams.findIndex(t => t === team));
+            }
+        }
+
+        function showF1Car(teamIdx) {
+            const team = f1Teams[teamIdx];
+            const modal = document.getElementById('stadium-modal');
+            const stadiumInfo = document.getElementById('stadium-info');
+
+            stadiumInfo.innerHTML = `
+                <div class="team-header">
+                    <img src="images/F1/${team.logo}" alt="${team.name}" class="team-header-logo">
+                    <h2>${team.name}</h2>
+                </div>
+                <img src="images/F1/${team.car}" alt="${team.name}" class="f1-car-img">
+            `;
+
+            const prevArrow = document.getElementById('prev-team-arrow');
+            const nextArrow = document.getElementById('next-team-arrow');
+            const newPrev = prevArrow.cloneNode(true);
+            const newNext = nextArrow.cloneNode(true);
+            prevArrow.parentNode.replaceChild(newPrev, prevArrow);
+            nextArrow.parentNode.replaceChild(newNext, nextArrow);
+            newPrev.addEventListener('click', () => showF1Car((teamIdx - 1 + f1Teams.length) % f1Teams.length));
+            newNext.addEventListener('click', () => showF1Car((teamIdx + 1) % f1Teams.length));
+
+            modal.classList.add('active');
+        }
+
+        function showF1Driver(flatIdx) {
+            const { team, driverIdx } = allF1Drivers[flatIdx];
+            const modal = document.getElementById('stadium-modal');
+            const stadiumInfo = document.getElementById('stadium-info');
+
+            stadiumInfo.innerHTML = `
+                <div class="team-header">
+                    <img src="images/F1/${team.logo}" alt="${team.name}" class="team-header-logo">
+                    <h2>${team.drivers[driverIdx]}</h2>
+                </div>
+                <img src="images/F1/${team.driverCards[driverIdx]}" alt="${team.drivers[driverIdx]}" class="f1-car-img">
+            `;
+
+            const prevArrow = document.getElementById('prev-team-arrow');
+            const nextArrow = document.getElementById('next-team-arrow');
+            const newPrev = prevArrow.cloneNode(true);
+            const newNext = nextArrow.cloneNode(true);
+            prevArrow.parentNode.replaceChild(newPrev, prevArrow);
+            nextArrow.parentNode.replaceChild(newNext, nextArrow);
+            newPrev.addEventListener('click', () => showF1Driver((flatIdx - 1 + allF1Drivers.length) % allF1Drivers.length));
+            newNext.addEventListener('click', () => showF1Driver((flatIdx + 1) % allF1Drivers.length));
+
+            modal.classList.add('active');
         }
 
         // Initial load
@@ -1048,15 +1288,19 @@
                     teams = plTeams;
                 }
 
-                // Swap map image
+                // Swap map image (not needed for F1)
                 const mapImg = document.getElementById('map-img');
-                mapImg.src = currentSport === 'pl' ? 'images/uk-map.svg' : 'images/us-map.webp';
-                mapImg.onload = () => updateZoom();
                 const mapContent = document.getElementById('map-content');
-                if (currentSport === 'pl') {
-                    mapContent.classList.add('portrait-map');
-                } else {
+                if (currentSport === 'f1') {
                     mapContent.classList.remove('portrait-map');
+                } else {
+                    mapImg.src = currentSport === 'pl' ? 'images/uk-map.svg' : 'images/us-map.webp';
+                    mapImg.onload = () => updateZoom();
+                    if (currentSport === 'pl') {
+                        mapContent.classList.add('portrait-map');
+                    } else {
+                        mapContent.classList.remove('portrait-map');
+                    }
                 }
 
                 // Update conference and division dropdown options
@@ -1133,15 +1377,22 @@
                 `;
             }
 
-            // Show/hide conference and division dropdowns for PL
+            // Show/hide conference and division dropdowns for PL and F1
             const confContainer = document.getElementById('conference-dropdown').parentElement;
             const divContainer = document.getElementById('division-dropdown').parentElement;
-            if (currentSport === 'pl') {
+            const f1ViewContainer = document.getElementById('f1-view-container');
+            if (currentSport === 'f1') {
                 confContainer.style.display = 'none';
                 divContainer.style.display = 'none';
+                f1ViewContainer.style.display = 'flex';
+            } else if (currentSport === 'pl') {
+                confContainer.style.display = 'none';
+                divContainer.style.display = 'none';
+                f1ViewContainer.style.display = 'none';
             } else {
                 confContainer.style.display = '';
                 divContainer.style.display = '';
+                f1ViewContainer.style.display = 'none';
             }
 
             // Re-attach event listeners
@@ -1201,6 +1452,7 @@
                     western:  [['central','Central'],['pacific','Pacific']],
                 },
                 pl: { all: [], pl: [] },
+                f1: { all: [] },
             };
 
             const conf = currentConference in divisionsByConference[currentSport]
@@ -1236,6 +1488,25 @@
 
         // Initialize division options
         updateDivisionOptions();
+
+        // F1 view dropdown (Cars / Drivers)
+        const f1ViewDropdown = document.getElementById('f1-view-dropdown');
+        const f1ViewSelected = f1ViewDropdown.querySelector('.dropdown-selected');
+        const selectedF1ViewText = document.getElementById('selected-f1-view-text');
+        f1ViewSelected.addEventListener('click', () => {
+            f1ViewDropdown.classList.toggle('open');
+            sportDropdown.classList.remove('open');
+        });
+        f1ViewDropdown.querySelectorAll('.dropdown-option').forEach(option => {
+            option.addEventListener('click', () => {
+                f1View = option.dataset.value;
+                selectedF1ViewText.textContent = option.querySelector('span').textContent;
+                f1ViewDropdown.classList.remove('open');
+            });
+        });
+        document.addEventListener('click', (e) => {
+            if (!f1ViewDropdown.contains(e.target)) f1ViewDropdown.classList.remove('open');
+        });
 
         conferenceSelected.addEventListener('click', () => {
             conferenceDropdown.classList.toggle('open');
