@@ -457,6 +457,78 @@
             display: none;
         }
 
+        /* Cars grid layout (Piston Cup / Cars 3) — 4 cols × 9 rows */
+        .cars-grid {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 6px;
+            padding: 12px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .cars-grid.visible {
+            display: grid;
+        }
+
+        .cars-logo-card {
+            cursor: pointer;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.15);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 4px 4px;
+            background: rgba(255,255,255,0.1);
+            box-sizing: border-box;
+            gap: 3px;
+        }
+
+        .cars-logo-card:hover {
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .cars-logo-img {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .cars-logo-name {
+            font-size: 9px;
+            font-weight: 600;
+            color: black;
+            text-align: center;
+            line-height: 1.2;
+            word-break: break-word;
+            flex-shrink: 0;
+        }
+
+        /* Cars modal car image */
+        .cars-car-img {
+            display: block;
+            width: 100%;
+            height: 510px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #f5f5f5;
+        }
+
         /* F1 modal content */
         .f1-car-img {
             width: 100%;
@@ -549,7 +621,7 @@
             padding: 24px 30px 30px;
             border-radius: 15px;
             width: 800px;
-            height: 640px;
+            height: 720px;
             overflow-y: auto;
             position: relative;
         }
@@ -694,6 +766,14 @@
                         <img src="images/F1/F1.png" alt="F1">
                         <span>Formula 1</span>
                     </div>
+                    <div class="dropdown-option" data-value="pistoncup">
+                        <img src="images/cars/piston-cup/Cup_logo.webp" alt="Piston Cup">
+                        <span>Piston Cup</span>
+                    </div>
+                    <div class="dropdown-option" data-value="cars3">
+                        <img src="images/cars/next-gen/Cars_3_title_logo.webp" alt="Cars 3">
+                        <span>Cars 3</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -750,6 +830,9 @@
 
                 <!-- F1 grid (replaces map for Formula 1) -->
                 <div id="f1-grid" class="f1-grid"></div>
+
+                <!-- Cars grids (Piston Cup / Cars 3) -->
+                <div id="cars-grid" class="cars-grid"></div>
             </div>
             </div>
         </div>
@@ -993,6 +1076,92 @@
             { name: "Cadillac",       logo: "logos/cadillac.webp",      car: "cars/cadillac.webp",       drivers: ["Sergio Perez",      "Valtteri Bottas"],  driverCards: ["drivers/card_Sergio_Perez.png",      "drivers/card_Valtteri_Bottas.png"]  },
         ];
 
+        // Piston Cup: each entry maps logo file → character file + character name
+        const pistonCupTeams = [
+            { logo: "04-tow-cap.webp",               car: "04-rusty-cornfuel.webp",         name: "Rusty Cornfuel" },
+            { logo: "08-dale-earnhardt-inc.webp",     car: "08-dale-earnhardt.webp",         name: "Dale Earnhardt Jr." },
+            { logo: "28-nitroade.png",                car: "28-nitroade.webp",               name: "Aiken Axler" },
+            { logo: "33-mood-springs.png",            car: "33-mood-springs.webp",           name: "Chuck Armstrong" },
+            { logo: "34-trunk-fresh.webp",            car: "34-trunk-fresh.webp",            name: "Dirk D'Agostino" },
+            { logo: "35-shifty-drug.webp",            car: "35-shifty-drug.webp",            name: "Kevin Racingtire" },
+            { logo: "36-tank-coat.webp",              car: "36-tank-coat.webp",              name: "Eugene Carbureski" },
+            { logo: "39-view-zeen.webp",              car: "39-view-zeen.webp",              name: "Ryan Shields" },
+            { logo: "43-dinoco.png",                  car: "43-dinoco.png",                  name: "Strip Weathers" },
+            { logo: "51-easy-idle.webp",              car: "51-easy-idle.webp",              name: "Ruby \"Easy\" Oakes" },
+            { logo: "52-leak-less.png",               car: "52-leak-less.webp",              name: "Claude Skruggs" },
+            { logo: "54-faux-wheel-drive.webp",       car: "54-faux-wheel-drive.webp",       name: "Johnny Blamer" },
+            { logo: "56-fiber-fuel.webp",             car: "56-fiber-fuel.webp",             name: "Brush Curber" },
+            { logo: "58-octane-gain.png",             car: "58-octane-gain.webp",            name: "Billy Oilchanger" },
+            { logo: "61-vitoline.png",                car: "61-vitoline.webp",               name: "James Cleanair" },
+            { logo: "63-transberry-juice.webp",       car: "63-transberry-juice.webp",       name: "Lee Reukins" },
+            { logo: "64-rpm.png",                     car: "64-rpm.webp",                    name: "Winford Rutherford" },
+            { logo: "68-n2o-cola.webp",               car: "68-n2o-cola.webp",               name: "Manny Flywheel" },
+            { logo: "70-gasprin.webp",                car: "70-gasprin.webp",                name: "Floyd Mulvihill" },
+            { logo: "73-rev-n-go.webp",               car: "73-rev-n-go.webp",               name: "Misti Motorkrass" },
+            { logo: "74-sidewall-shine.png",          car: "74-sidewall-shine.webp",         name: "Slider Petrolski" },
+            { logo: "76-vinyl-toupee.webp",           car: "76-vinyl-toupee.webp",           name: "Crusty Rotor" },
+            { logo: "79-retread.webp",                car: "79-retread.webp",                name: "Haul Inngas" },
+            { logo: "80-gask-its.png",                car: "80-gask-its.png",                name: "Sage Vanderspin" },
+            { logo: "82-shiny-wax.webp",              car: "82-shiny-wax.png",               name: "Darron Leadfoot" },
+            { logo: "84-apple.webp",                  car: "84-apple.png",                   name: "Mac iCar" },
+            { logo: "84-re-volting.png",              car: "84-re-volting.webp",             name: "Davey Apex" },
+            { logo: "86-hostile-takeover-bank.webp",  car: "86-chick-hicks.png",             name: "Chick Hicks" },
+            { logo: "90-bumper-save.png",             car: "90-bumper-save.png",             name: "Ponchy Wipeout" },
+            { logo: "92-sputter-stop.webp",           car: "92-sputter-stop.png",            name: "Murray Clutchburn" },
+            { logo: "93-spare-mint.png",              car: "93-spare-mint.png",              name: "Earnie Gearson" },
+            { logo: "95-rust-eze.png",                car: "95-rust-eze.png",                name: "Lightning McQueen" },
+            { logo: "101-tach-o-mint.png",            car: "101-tach-o-mint.png",            name: "Greg Candyman" },
+            { logo: "117-lil-torquey-pistons.webp",   car: "117-lil-torquey-pistons.png",    name: "Ralph Carlow" },
+            { logo: "121-clutch-aid.png",             car: "121-clutch-aid.png",             name: "Kevin Shiftright" },
+            { logo: "123-no-stall.webp",              car: "123-no-stall.png",               name: "Todd Marcus" },
+        ];
+
+        const cars3Teams = [
+            { logo: "00-intersection.webp",           car: "00-intersection.webp",           name: "Flip Dover" },
+            { logo: "03-sidewall-shine.png",          car: "03-sidewall-shine.webp",         name: "Carstin Dillon" },
+            { logo: "04-tow-cap.webp",                car: "04-tow-cap.webp",                name: "J.D. McPillar" },
+            { logo: "05-synerg.webp",                 car: "05-synerg.webp",                 name: "Eric Braker" },
+            { logo: "06-transberry-juice.webp",       car: "06-transberry-juice.webp",       name: "Bubba Wheelhouse" },
+            { logo: "10-retread.webp",                car: "10-retread.webp",                name: "Aric Almirolling" },
+            { logo: "11-combustr.webp",               car: "11-combustr.webp",               name: "Chris Roamin'" },
+            { logo: "15-easy-idle.webp",              car: "15-easy-idle.webp",              name: "Harvey Rodcap" },
+            { logo: "18-htb.webp",                    car: "18-htb.webp",                    name: "Rowdy Revvin' Busch" },
+            { logo: "19-octane-gain.webp",            car: "19-octane-gain.webp",            name: "Danny Swervez" },
+            { logo: "20-igntr.webp",                  car: "20-igntr.webp",                  name: "Jackson Storm" },
+            { logo: "21-blinkr.webp",                 car: "21-blinkr.webp",                 name: "Ryan Laney" },
+            { logo: "21b-blinkr.webp",                car: "21b-blinkr.webp",                name: "Ryan Laney (Alt)" },
+            { logo: "22-fiber-fuel.webp",             car: "22-fiber-fuel.webp",             name: "GoGo Logano" },
+            { logo: "24-vitoline.webp",               car: "24-vitoline.webp",               name: "Chase Racelott" },
+            { logo: "24b-shifty-drug.webp",           car: "24b-shifty-drug.webp",           name: "William Byrev" },
+            { logo: "24c-vitoline.webp",              car: "24c-vitoline.webp",              name: "Chase Racelott (Alt)" },
+            { logo: "28-nitroade.webp",               car: "28-nitroade.webp",               name: "Tim Treadless" },
+            { logo: "31-triple-dent.webp",            car: "31-triple-dent.webp",            name: "Cam Spinner" },
+            { logo: "33-mood-springs.webp",           car: "33-mood-springs.webp",           name: "Ed Truncan" },
+            { logo: "34-trunk-fresh.webp",            car: "34-trunk-fresh.webp",            name: "Steve LaPage" },
+            { logo: "36-tank-coat.webp",              car: "36-tank-coat.png",               name: "Rich Mixon" },
+            { logo: "39-view-zeen.webp",              car: "39-view-zeen.webp",              name: "Michael Rotor" },
+            { logo: "42-dinoco.webp",                 car: "42-dinoco.webp",                 name: "Cal Weathers" },
+            { logo: "48-re-volting.webp",             car: "48-re-volting.webp",             name: "Aaron Clocker" },
+            { logo: "51-dinoco.webp",                 car: "51-dinoco.png",                  name: "Cruz Ramirez" },
+            { logo: "52-leak-less.webp",              car: "52-leak-less.png",               name: "George New-Win" },
+            { logo: "54-faux-wheel-drive.webp",       car: "54-faux-wheel-drive.webp",       name: "Herb Curbler" },
+            { logo: "64-rpm.webp",                    car: "64-rpm.webp",                    name: "Barry DePedal" },
+            { logo: "67-carbon-cyber.webp",           car: "67-carbon-cyber.webp",           name: "Jim Reverick" },
+            { logo: "68-n2o-cola.webp",               car: "68-n2o-cola.webp",               name: "H.J. Hollis" },
+            { logo: "70-gasprin.webp",                car: "70-gasprin.webp",                name: "Richie Gunzit" },
+            { logo: "73-rev-n-go.webp",               car: "73-rev-n-go.webp",               name: "M Fast Fong" },
+            { logo: "76-vinyl-toupee.webp",           car: "76-vinyl-toupee.webp",           name: "Will Rusch" },
+            { logo: "80-gask-its.webp",               car: "80-gask-its.webp",               name: "Dan Carcia" },
+            { logo: "82-shiny-wax.webp",              car: "82-shiny-wax.webp",              name: "Conrad Camber" },
+            { logo: "84-apple.webp",                  car: "84-apple.png",                   name: "J.P. Drive" },
+            { logo: "90-bumper-save.webp",            car: "90-bumper-save.webp",            name: "Paul Conrev" },
+            { logo: "92-sputter-stop.webp",           car: "92-sputter-stop.png",            name: "Sheldon Shifter" },
+            { logo: "93-spare-mint.webp",             car: "93-spare-mint.webp",             name: "Nick Shift" },
+            { logo: "117-lil-torquey-pistons.webp",   car: "117-lil-torquey-pistons.webp",   name: "Spikey Fillups" },
+            { logo: "121-clutch-aid.png", logoFolder: "piston-cup", car: "121-clutch-aid.webp", name: "Noah Gocek" },
+            { logo: "123-no-stall.webp",              car: "123-no-stall.webp",              name: "Jonas Carvers" },
+        ];
+
         let f1View = 'cars'; // 'cars' or 'drivers'
 
         let currentSport = 'nfl';
@@ -1079,6 +1248,8 @@
             const mapWrapper = document.getElementById('map-wrapper');
             const zoomControls = document.querySelector('.zoom-controls');
 
+            const carsGrid = document.getElementById('cars-grid');
+
             if (currentSport === 'f1') {
                 // Hide map elements, show F1 grid
                 document.getElementById('map-img').style.display = 'none';
@@ -1098,11 +1269,35 @@
                 mapContent.style.height = wh + 'px';
                 zoomControls.style.display = 'none';
                 f1Grid.classList.add('visible');
+                carsGrid.classList.remove('visible');
                 loadF1Grid();
                 return;
             }
 
-            // Show map elements, hide F1 grid
+            if (currentSport === 'pistoncup' || currentSport === 'cars3') {
+                // Hide map elements, show Cars grid
+                document.getElementById('map-img').style.display = 'none';
+                container.style.display = 'none';
+                mapContent.classList.add('f1-mode');
+                mapScrollSizer.classList.add('f1-mode');
+                mapWrapper.classList.add('f1-mode');
+                const wh2 = mapWrapper.clientHeight;
+                const ww2 = mapWrapper.clientWidth;
+                mapScrollSizer.style.width = ww2 + 'px';
+                mapScrollSizer.style.height = wh2 + 'px';
+                mapContent.style.transform = '';
+                mapContent.style.marginLeft = '0';
+                mapContent.style.marginTop = '0';
+                mapContent.style.width = ww2 + 'px';
+                mapContent.style.height = wh2 + 'px';
+                zoomControls.style.display = 'none';
+                f1Grid.classList.remove('visible');
+                carsGrid.classList.add('visible');
+                loadCarsGrid();
+                return;
+            }
+
+            // Show map elements, hide F1 grid and Cars grid
             document.getElementById('map-img').style.display = '';
             container.style.display = '';
             mapContent.classList.remove('f1-mode');
@@ -1110,6 +1305,7 @@
             mapWrapper.classList.remove('f1-mode');
             zoomControls.style.display = '';
             f1Grid.classList.remove('visible');
+            carsGrid.classList.remove('visible');
 
             // Clear existing markers
             container.innerHTML = '';
@@ -1164,6 +1360,53 @@
                 card.addEventListener('click', () => showF1Team(team));
                 f1Grid.appendChild(card);
             });
+        }
+
+        function loadCarsGrid() {
+            const carsGrid = document.getElementById('cars-grid');
+            carsGrid.innerHTML = '';
+            const dataset = currentSport === 'pistoncup' ? pistonCupTeams : cars3Teams;
+            const folder = currentSport === 'pistoncup' ? 'piston-cup' : 'next-gen';
+            const cols = currentSport === 'cars3' ? 5 : 4;
+            const rows = Math.ceil(dataset.length / cols);
+            carsGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            carsGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            dataset.forEach((entry, idx) => {
+                const card = document.createElement('div');
+                card.className = 'cars-logo-card';
+                const logoFolder = entry.logoFolder || folder;
+                card.innerHTML = `<img src="images/cars/${logoFolder}/logos/${entry.logo}" alt="${entry.name}" class="cars-logo-img">
+                    <div class="cars-logo-name">${entry.name}</div>`;
+                card.addEventListener('click', () => showCarsEntry(idx));
+                carsGrid.appendChild(card);
+            });
+        }
+
+        function showCarsEntry(idx) {
+            const dataset = currentSport === 'pistoncup' ? pistonCupTeams : cars3Teams;
+            const folder = currentSport === 'pistoncup' ? 'piston-cup' : 'next-gen';
+            const entry = dataset[idx];
+            const modal = document.getElementById('stadium-modal');
+            const stadiumInfo = document.getElementById('stadium-info');
+
+            stadiumInfo.innerHTML = `
+                <div class="team-header">
+                    <img src="images/cars/${entry.logoFolder || folder}/logos/${entry.logo}" alt="${entry.name}" class="team-header-logo">
+                    <h2>${entry.name}</h2>
+                </div>
+                <img src="images/cars/${folder}/characters/${entry.car}" alt="${entry.name}" class="cars-car-img">
+            `;
+
+            const prevArrow = document.getElementById('prev-team-arrow');
+            const nextArrow = document.getElementById('next-team-arrow');
+            const newPrev = prevArrow.cloneNode(true);
+            const newNext = nextArrow.cloneNode(true);
+            prevArrow.parentNode.replaceChild(newPrev, prevArrow);
+            nextArrow.parentNode.replaceChild(newNext, nextArrow);
+            newPrev.addEventListener('click', () => showCarsEntry((idx - 1 + dataset.length) % dataset.length));
+            newNext.addEventListener('click', () => showCarsEntry((idx + 1) % dataset.length));
+
+            modal.classList.add('active');
         }
 
         // Flat list of all drivers: [{team, driverIdx}] across all teams in order
@@ -1288,10 +1531,10 @@
                     teams = plTeams;
                 }
 
-                // Swap map image (not needed for F1)
+                // Swap map image (not needed for F1, Piston Cup, Cars 3)
                 const mapImg = document.getElementById('map-img');
                 const mapContent = document.getElementById('map-content');
-                if (currentSport === 'f1') {
+                if (currentSport === 'f1' || currentSport === 'pistoncup' || currentSport === 'cars3') {
                     mapContent.classList.remove('portrait-map');
                 } else {
                     mapImg.src = currentSport === 'pl' ? 'images/uk-map.svg' : 'images/us-map.webp';
@@ -1385,7 +1628,7 @@
                 confContainer.style.display = 'none';
                 divContainer.style.display = 'none';
                 f1ViewContainer.style.display = 'flex';
-            } else if (currentSport === 'pl') {
+            } else if (currentSport === 'pl' || currentSport === 'pistoncup' || currentSport === 'cars3') {
                 confContainer.style.display = 'none';
                 divContainer.style.display = 'none';
                 f1ViewContainer.style.display = 'none';
@@ -1453,6 +1696,8 @@
                 },
                 pl: { all: [], pl: [] },
                 f1: { all: [] },
+                pistoncup: { all: [] },
+                cars3: { all: [] },
             };
 
             const conf = currentConference in divisionsByConference[currentSport]
