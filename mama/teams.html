@@ -263,6 +263,11 @@
             height: 1200px;
         }
 
+        .map-content.brasil-map {
+            width: 1000px;
+            height: 882px;
+        }
+
         .map-svg {
             display: block;
             width: 100%;
@@ -400,6 +405,9 @@
 
         /* PL — no conferences, single neutral background */
         .team-marker.div-pl { background: #f0f0f0; border: 2px solid #555555; }
+
+        /* Brasileirao — green and yellow */
+        .team-marker.div-brasileirao { background: #edffd6; border: 2px solid #1a7a1a; }
 
         /* F1 grid layout */
         .f1-grid {
@@ -762,6 +770,10 @@
                         <img src="images/PL/pl-logo.svg" alt="PL">
                         <span>Premier League</span>
                     </div>
+                    <div class="dropdown-option" data-value="brasileirao">
+                        <img src="images/brasileirao/brasileirao-logo.svg" alt="Brasileirao">
+                        <span>Brasileirão</span>
+                    </div>
                     <div class="dropdown-option" data-value="f1">
                         <img src="images/F1/F1.png" alt="F1">
                         <span>Formula 1</span>
@@ -1062,6 +1074,40 @@
         ];
         plTeams.forEach(t => { t.conference = "pl"; t.division = "pl"; });
 
+        // x/y = % position on the Brazil map (800×900 viewBox)
+        const brasileiraoTeams = [
+            // Rio de Janeiro — 4 clubs, spread around RJ coords (67.8%, 70.9%)
+            { name: "Flamengo",       city: "Rio de Janeiro", state: "RJ", x: 67.0, y: 69.5, logoFile: "flamengo.svg",       stadium: "Estádio do Maracanã",              capacity: "78,838", arenaFile: "flamengo-stadium.jpg" },
+            { name: "Fluminense",     city: "Rio de Janeiro", state: "RJ", x: 69.0, y: 69.5, logoFile: "fluminense.svg",     stadium: "Estádio do Maracanã",              capacity: "78,838", arenaFile: "fluminense-stadium.jpg" },
+            { name: "Botafogo",       city: "Rio de Janeiro", state: "RJ", x: 67.0, y: 71.5, logoFile: "botafogo.svg",       stadium: "Estádio Olímpico Nilton Santos",    capacity: "46,931", arenaFile: "botafogo-stadium.jpg" },
+            { name: "Vasco da Gama",  city: "Rio de Janeiro", state: "RJ", x: 69.0, y: 71.5, logoFile: "vasco.svg",          stadium: "São Januário",                     capacity: "21,880", arenaFile: "vasco-stadium.jpg" },
+            // São Paulo — 4 clubs around SP coords (60.8%, 72.4%)
+            { name: "Palmeiras",      city: "São Paulo",      state: "SP", x: 59.5, y: 71.0, logoFile: "palmeiras.png",      stadium: "Allianz Parque",                   capacity: "43,713", arenaFile: "palmeiras-stadium.jpg" },
+            { name: "Corinthians",    city: "São Paulo",      state: "SP", x: 61.5, y: 71.0, logoFile: "corinthians.svg",    stadium: "Neo Química Arena",                capacity: "48,905", arenaFile: "corinthians-stadium.jpg" },
+            { name: "São Paulo",      city: "São Paulo",      state: "SP", x: 59.5, y: 73.0, logoFile: "sao-paulo.svg",      stadium: "MorumBIS",                         capacity: "72,039", arenaFile: "sao-paulo-stadium.jpg" },
+            { name: "Santos",         city: "Santos",         state: "SP", x: 61.5, y: 73.5, logoFile: "santos.png",         stadium: "Estádio Urbano Caldeira",          capacity: "16,068", arenaFile: "santos-stadium.jpg" },
+            // Interior SP
+            { name: "Bragantino",     city: "Bragança Paulista", state: "SP", x: 61.5, y: 70.0, logoFile: "bragantino.png",  stadium: "Estádio Nabi Abi Chedid",          capacity: "17,724", arenaFile: "bragantino-stadium.jpg" },
+            { name: "Mirassol",       city: "Mirassol",       state: "SP", x: 55.3, y: 65.5, logoFile: "mirassol.png",       stadium: "Estádio José M. de Campos Maia",   capacity: "14,534", arenaFile: "mirassol-stadium.jpg" },
+            // Minas Gerais — 2 clubs (66.3%, 63.8%)
+            { name: "Atlético-MG",    city: "Belo Horizonte", state: "MG", x: 65.5, y: 63.0, logoFile: "atletico-mg.svg",    stadium: "Arena MRV",                        capacity: "44,892", arenaFile: "atletico-mg-stadium.jpg" },
+            { name: "Cruzeiro",       city: "Belo Horizonte", state: "MG", x: 67.5, y: 63.0, logoFile: "cruzeiro.svg",       stadium: "Mineirão",                         capacity: "66,658", arenaFile: "cruzeiro-stadium.jpg" },
+            // Paraná — 2 clubs (55.4%, 76.9%)
+            { name: "Athletico-PR",   city: "Curitiba",       state: "PR", x: 54.5, y: 76.0, logoFile: "athletico-pr.svg",   stadium: "Ligga Arena",                      capacity: "42,372", arenaFile: "athletico-pr-stadium.jpg" },
+            { name: "Coritiba",       city: "Curitiba",       state: "PR", x: 56.5, y: 76.0, logoFile: "coritiba.svg",       stadium: "Estádio Couto Pereira",            capacity: "40,502", arenaFile: "coritiba-stadium.jpg" },
+            // Rio Grande do Sul — 2 clubs (51.4%, 87.9%)
+            { name: "Grêmio",         city: "Porto Alegre",   state: "RS", x: 50.5, y: 87.0, logoFile: "gremio.svg",         stadium: "Arena do Grêmio",                  capacity: "55,662", arenaFile: "gremio-stadium.jpg" },
+            { name: "Internacional",  city: "Porto Alegre",   state: "RS", x: 52.5, y: 87.0, logoFile: "internacional.svg",  stadium: "Estádio Beira-Rio",                capacity: "50,848", arenaFile: "internacional-stadium.jpg" },
+            // Bahia — 2 clubs (77.3%, 47.1%)
+            { name: "Bahia",          city: "Salvador",       state: "BA", x: 76.5, y: 46.5, logoFile: "bahia.svg",          stadium: "Arena Fonte Nova",                 capacity: "47,902", arenaFile: "bahia-stadium.jpg" },
+            { name: "Vitória",        city: "Salvador",       state: "BA", x: 78.5, y: 46.5, logoFile: "vitoria.svg",        stadium: "Barradão",                         capacity: "34,535", arenaFile: "vitoria-stadium.jpg" },
+            // Santa Catarina
+            { name: "Chapecoense",    city: "Chapecó",        state: "SC", x: 48.2, y: 80.5, logoFile: "chapecoense.svg",    stadium: "Arena Condá",                      capacity: "20,089", arenaFile: "chapecoense-stadium.jpg" },
+            // Pará
+            { name: "Remo",           city: "Belém",          state: "PA", x: 57.0, y: 19.5, logoFile: "remo.svg",           stadium: "Baenão",                           capacity: "13,792", arenaFile: "remo-stadium.jpg" },
+        ];
+        brasileiraoTeams.forEach(t => { t.conference = "brasileirao"; t.division = "brasileirao"; });
+
         const f1Teams = [
             { name: "Mercedes",       logo: "logos/mercedes.webp",      car: "cars/mercedes.webp",       drivers: ["George Russell",    "Kimi Antonelli"],   driverCards: ["drivers/card_George_Russell.png",    "drivers/card_Kimi_Antonelli.png"]   },
             { name: "Ferrari",        logo: "logos/ferrari.webp",       car: "cars/ferrari.webp",        drivers: ["Charles Leclerc",   "Lewis Hamilton"],   driverCards: ["drivers/card_Charles_Leclerc.png",   "drivers/card_Lewis_Hamilton.png"]   },
@@ -1304,6 +1350,9 @@
             mapContent.classList.remove('f1-mode');
             mapScrollSizer.classList.remove('f1-mode');
             mapWrapper.classList.remove('f1-mode');
+            // Reset map size classes — the sport-switch handler sets the correct one
+            if (currentSport !== 'pl') mapContent.classList.remove('portrait-map');
+            if (currentSport !== 'brasileirao') mapContent.classList.remove('brasil-map');
             zoomControls.style.display = '';
             f1Grid.classList.remove('visible');
             carsGrid.classList.remove('visible');
@@ -1326,6 +1375,8 @@
                     divClass = 'div-' + team.division;
                 } else if (currentSport === 'pl') {
                     divClass = 'div-pl';
+                } else if (currentSport === 'brasileirao') {
+                    divClass = 'div-brasileirao';
                 }
                 marker.className = 'team-marker' + (confClass ? ' ' + confClass : '') + (divClass ? ' ' + divClass : '');
                 marker.style.left = `${team.x}%`;
@@ -1335,7 +1386,7 @@
                 marker.dataset.baseX = team.x;
                 marker.dataset.baseY = team.y;
 
-                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : currentSport === 'nhl' ? 'NHL' : currentSport === 'pl' ? 'PL' : 'MLB';
+                const sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'nba' ? 'NBA' : currentSport === 'nhl' ? 'NHL' : currentSport === 'pl' ? 'PL' : currentSport === 'brasileirao' ? 'brasileirao' : 'MLB';
                 marker.innerHTML = `
                     <img src="images/${sportFolder}/${team.logoFile}" alt="${team.name}" class="team-logo" onerror="console.error('Failed to load logo for ${team.name}: ${sportFolder}/${team.logoFile}')">
                     <div class="team-name">${team.name}</div>
@@ -1530,6 +1581,8 @@
                     teams = nhlTeams;
                 } else if (currentSport === 'pl') {
                     teams = plTeams;
+                } else if (currentSport === 'brasileirao') {
+                    teams = brasileiraoTeams;
                 }
 
                 // Swap map image (not needed for F1, Piston Cup, Cars 3)
@@ -1537,14 +1590,22 @@
                 const mapContent = document.getElementById('map-content');
                 if (currentSport === 'f1' || currentSport === 'pistoncup' || currentSport === 'cars3') {
                     mapContent.classList.remove('portrait-map');
+                    mapContent.classList.remove('brasil-map');
                 } else {
-                    mapImg.src = currentSport === 'pl' ? 'images/uk-map.svg' : 'images/us-map.webp';
-                    mapImg.onload = () => updateZoom();
                     if (currentSport === 'pl') {
+                        mapImg.src = 'images/uk-map.svg';
                         mapContent.classList.add('portrait-map');
-                    } else {
+                        mapContent.classList.remove('brasil-map');
+                    } else if (currentSport === 'brasileirao') {
+                        mapImg.src = 'images/brasileirao/brazil-map.png';
+                        mapContent.classList.add('brasil-map');
                         mapContent.classList.remove('portrait-map');
+                    } else {
+                        mapImg.src = 'images/us-map.webp';
+                        mapContent.classList.remove('portrait-map');
+                        mapContent.classList.remove('brasil-map');
                     }
+                    mapImg.onload = () => updateZoom();
                 }
 
                 // Update conference and division dropdown options
@@ -1629,7 +1690,7 @@
                 confContainer.style.display = 'none';
                 divContainer.style.display = 'none';
                 f1ViewContainer.style.display = 'flex';
-            } else if (currentSport === 'pl' || currentSport === 'pistoncup' || currentSport === 'cars3') {
+            } else if (currentSport === 'pl' || currentSport === 'pistoncup' || currentSport === 'cars3' || currentSport === 'brasileirao') {
                 confContainer.style.display = 'none';
                 divContainer.style.display = 'none';
                 f1ViewContainer.style.display = 'none';
@@ -1699,6 +1760,7 @@
                 f1: { all: [] },
                 pistoncup: { all: [] },
                 cars3: { all: [] },
+                brasileirao: { all: [] },
             };
 
             const conf = currentConference in divisionsByConference[currentSport]
@@ -1843,11 +1905,11 @@
 
             // Use venue image from images folder (stadium or arena)
             let venueFileName, venueName, venueLabel, sportFolder;
-            if (currentSport === 'nfl' || currentSport === 'mlb' || currentSport === 'pl') {
+            if (currentSport === 'nfl' || currentSport === 'mlb' || currentSport === 'pl' || currentSport === 'brasileirao') {
                 venueFileName = team.arenaFile || team.logoFile.replace('.webp', '-stadium.jpg').replace('.png', '-stadium.jpg').replace('.svg', '-stadium.jpg');
                 venueName = team.stadium;
                 venueLabel = 'Stadium';
-                sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'pl' ? 'PL' : 'MLB';
+                sportFolder = currentSport === 'nfl' ? 'NFL' : currentSport === 'pl' ? 'PL' : currentSport === 'brasileirao' ? 'brasileirao' : 'MLB';
             } else {
                 venueFileName = team.arenaFile || team.logoFile.replace('.webp', '-arena.jpg').replace('.png', '-arena.jpg').replace('.svg', '-arena.jpg');
                 venueName = team.arena;
@@ -1857,6 +1919,9 @@
             const venueImageUrl = `images/${sportFolder}/${venueFileName}`;
             const teamLogoUrl = `images/${sportFolder}/${team.logoFile}`;
 
+            const locationStr = (currentSport === 'brasileirao' && team.state)
+                ? `${team.city}, ${team.state}`
+                : team.city;
             stadiumInfo.innerHTML = `
                 <div class="team-header">
                     <img src="${teamLogoUrl}" alt="${team.name}" class="team-header-logo">
@@ -1865,7 +1930,7 @@
                 <img class="stadium-img" src="${venueImageUrl}" alt="${venueName}">
                 <div class="stadium-details">
                     <p><strong>${venueLabel}:</strong> ${venueName}</p>
-                    <p><strong>Location:</strong> ${team.city}</p>
+                    <p><strong>Location:</strong> ${locationStr}</p>
                     <p><strong>Capacity:</strong> ${team.capacity}</p>
                 </div>
             `;
